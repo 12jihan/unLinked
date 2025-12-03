@@ -55,7 +55,8 @@ def main():
     #     print(f"body: {resp.json()}")
 
     gem_ext = GeminiExt()
-    gem_ext.get_available_models()
+    # gem_ext.get_available_models()
+    gem_ext.generate_content("hi")
 
 
 if __name__ == "__main__":

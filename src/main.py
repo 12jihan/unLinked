@@ -1,4 +1,6 @@
 from dotenv import load_dotenv
+import keyboard
+import time
 
 
 from gemini.gemini_ext import GeminiExt
@@ -54,9 +56,19 @@ def main():
     #     print(f"Request failed: {resp.status_code}")
     #     print(f"body: {resp.json()}")
 
+    def escape_key():
+        pressed = False
+        if keyboard.is_pressed("escape"):
+            pressed = True
+        return pressed
+
+    model_off = True
     gem_ext = GeminiExt()
-    # gem_ext.get_available_models()
-    gem_ext.generate_content("hi")
+    if gem_ext:
+        model_off = False
+
+    while not model_off:
+        model_off = escape_key()
 
 
 if __name__ == "__main__":

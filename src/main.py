@@ -1,21 +1,12 @@
-from dotenv import load_dotenv
-import keyboard
-import time
-
-
 from gemini.gemini_ext import GeminiExt
+from dotenv import load_dotenv
+
+running = True
 
 
 def main():
     # add vars to the env
     load_dotenv()
-    # dir_list: list[str] = os.listdir("./imgs")
-
-    # GeminiAI Tokens
-    # api_key: str | None = os.getenv("API_KEY")
-    # chat_history_context: list = []
-    # client: Client = Client(api_key=api_key)
-    # models = list(client.models.list())
 
     # URL, HEADER, BODY, REQUEST
     # url: str = "https://api.linkedin.com/v2/ugcPosts"
@@ -56,19 +47,12 @@ def main():
     #     print(f"Request failed: {resp.status_code}")
     #     print(f"body: {resp.json()}")
 
-    def escape_key():
-        pressed = False
-        if keyboard.is_pressed("escape"):
-            pressed = True
-        return pressed
-
     model_off = True
     gem_ext = GeminiExt()
-    if gem_ext:
-        model_off = False
-
-    while not model_off:
-        model_off = escape_key()
+    while running and gem_ext:
+        user_input = "hello"
+        # user_input = input("\n Enter a message: \n")
+        gem_ext.generate_content(user_input)
 
 
 if __name__ == "__main__":

@@ -22,8 +22,8 @@ class GeminiExt:
 
         try:
             if len(self.prompt) > 0:
-                print(f"message:\t{message}")
-                self.__context_history.append(self.__build_part("user", "Hello"))
+                print(f"message:\t{self.prompt}")
+                self.__context_history.append(self.__build_part("user", self.prompt))
                 print("Thinking ...")
                 response = self.__client.models.generate_content(
                     model="gemini-2.5-flash",

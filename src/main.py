@@ -1,5 +1,6 @@
 from gemini.gemini_ext import GeminiExt
 from dotenv import load_dotenv
+import os
 
 running = True
 
@@ -47,11 +48,11 @@ def main():
     #     print(f"Request failed: {resp.status_code}")
     #     print(f"body: {resp.json()}")
 
-    model_off = True
     gem_ext = GeminiExt()
     while running and gem_ext:
         user_input = "hello"
-        # user_input = input("\n Enter a message: \n")
+        user_input = input("\n Enter a message: \n")
+        os.system("clear")
         gem_ext.generate_content(user_input)
 
 

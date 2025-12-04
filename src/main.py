@@ -52,6 +52,8 @@ def main():
     while running and gem_ext:
         user_input = "hello"
         user_input = input("\n Enter a message: \n")
+        if user_input == "##quit":
+            return
         os.system("clear")
         gem_ext.generate_content(user_input)
 

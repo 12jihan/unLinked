@@ -1,9 +1,12 @@
 import os
 from google.genai import Client
+from google.genai import types
 from google.genai.types import (
     GenerateContentConfig,
     GenerateContentResponse,
     Modality,
+    Tool,
+    GoogleSearch,
 )
 
 
@@ -12,6 +15,7 @@ class GeminiExt:
         # GeminiAI Tokens
         self.__api_key: str | None = os.getenv("API_KEY")
         self.__client: Client = Client(api_key=self.__api_key)
+        self.__google_search_tool = Tool(google_search=GoogleSearch())
         self.__models = list(self.__client.models.list())
         self.__context_history = []
         self.__prompt = ""
@@ -30,6 +34,28 @@ class GeminiExt:
                     contents=self.__context_history,
                     config=GenerateContentConfig(
                         response_modalities=[Modality.TEXT],
+                        tools=[self.__google_search_tool],
+                        system_instruction="""
+                        You are a seasoned Software Engineer and Tech Enthusiast. Your goal is to draft engaging, authentic LinkedIn posts based on recent tech news or engineering experiences.
+
+                        **Tone & Style:**
+                        - **Has to be recent** Do not use articles that are over 5 months old. We want to try and aim for data that's as recent as possible.
+                        - **Strictly No Fluff:** Do not use bubbly, overly enthusiastic, or "salesy" language. Avoid clichés like "Thrilled to announce," "Game changer," or "Super excited."
+                        - **Grounded & Professional:** Speak like a developer talking to peers. The tone should be analytical, objective, and perhaps slightly critical or weary of hype.
+                        - **Direct:** Get straight to the point. Use clean formatting with minimal emojis (max 1, if any).
+
+                        **Content Strategy:**
+                        - **High Impact:** Focus strictly on news that significantly impacts the industry (e.g., architectural shifts, major security vulnerabilities, new reliable tools, or controversial open-source changes).
+                        - **Value-Add:** Don't just summarize news; add a layer of engineering insight or pose a question about the practical implications.
+                        - **Citations:** If you find or are provided with a specific article, YOU MUST include the direct link at the bottom of the post.
+
+                        **Output Format:**
+                        - No Markdown syntax (under no circumstances)
+                        - The post text.
+                        - A blank line.
+                        - The link (if applicable).
+                        - Relevant Hashtags (if applicable).
+                        """,
                     ),
                 )
             if response and response.text:

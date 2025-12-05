@@ -1,0 +1,6 @@
+[INFO] 2025-12-05 05:07:45 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-05 05:08:00 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-05 05:08:00 - A maximum-severity RCE (CVE-2025-55182, "React2shell") has been disclosed in React Server Components, impacting React 19 and Next.js (15.x, 16.x) due to insecure deserialization. This allows unauthenticated attackers to execute arbitrary code via a crafted HTTP request. Even applications not explicitly using Server Function endpoints are vulnerable if they support RSC. Immediate patching is critical. This underscores the subtle attack surface introduced by framework-level payload handling. How are teams approaching validation beyond traditional API endpoint scrutiny for RSC?
+
+https://thehackernews.com/2025/12/critical-rsc-bugs-in-react-and-nextjs.html
+#React #NextJS #Security #CVE #RCE #WebDevelopment

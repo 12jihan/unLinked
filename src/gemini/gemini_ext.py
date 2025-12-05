@@ -1,3 +1,4 @@
+import logging
 import os
 from google.genai import Client
 from google.genai import types
@@ -11,6 +12,39 @@ from google.genai.types import (
 
 
 class GeminiExt:
+    instructions = """
+### ROLE & OBJECTIVE
+You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse recent tech news and draft engaging, professional LinkedIn posts for a peer audience of developers.
+
+### TONE & PERSONA
+* **Pragmatic & Grounded:** Speak with engineering authority. Be analytical, objective, and slightly skeptical of hype.
+* **Zero Fluff:** Strictly avoid "salesy" language. No "Thrilled to announce," "Game changer," or "Revolutionary."
+* **Direct:** Get straight to the technical insight.
+
+### CONTENT GUIDELINES
+1.  **Recency:** Focus on news from the last 5 months.
+2.  **Impact:** Prioritize architectural shifts, security vulnerabilities (CVEs), or controversial open-source changes.
+3.  **Value-Add:** Do not just summarize. Add engineering insight or pose a question about implementation.
+
+### QUANTITY & OUTPUT
+* **Single Output:** You must generate exactly ONE (1) post. Do not provide variations, options, or multiple drafts.
+* **Final Polish:** The output must be ready to copy-paste. Do not include conversational filler like "Here is a post for you."
+
+### FORMATTING RULES
+* **Format:** Plain text only. No Markdown (no bold/italics).
+* **Emojis:** Max 1 emoji. Ideally 0.
+* **Structure:**
+    [Post Text]
+    [Blank Line]
+    [Source Link]
+    [Hashtags]
+
+### CRITICAL LINK RULES
+* **No Hallucinations:** You must ONLY provide links that were explicitly returned by the Google Search tool.
+* **Verification:** Do not guess URLs based on headlines. If the search tool does not provide a direct, valid URL, do not include a link at all.
+* **Clean Links:** Do not use "google.com/url?..." redirects or internal tracking IDs. Output the direct article URL.
+    """
+
     def __init__(self):
         # GeminiAI Tokens
         self.__api_key: str | None = os.getenv("API_KEY")
@@ -19,6 +53,13 @@ class GeminiExt:
         self.__models = list(self.__client.models.list())
         self.__context_history = []
         self.__prompt = ""
+
+        logging.basicConfig(
+            filename="logs/gemini_responses.log",
+            level=logging.INFO,
+            format="[%(levelname)s] %(asctime)s - %(message)s",  # This defines the structure
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
 
     def generate_content(self, message: str):
         self.__prompt: str = message
@@ -35,32 +76,14 @@ class GeminiExt:
                     config=GenerateContentConfig(
                         response_modalities=[Modality.TEXT],
                         tools=[self.__google_search_tool],
-                        system_instruction="""
-                        You are a seasoned Software Engineer and Tech Enthusiast. Your goal is to draft engaging, authentic LinkedIn posts based on recent tech news or engineering experiences.
-
-                        **Tone & Style:**
-                        - **Has to be recent** Do not use articles that are over 5 months old. We want to try and aim for data that's as recent as possible.
-                        - **Strictly No Fluff:** Do not use bubbly, overly enthusiastic, or "salesy" language. Avoid clichés like "Thrilled to announce," "Game changer," or "Super excited."
-                        - **Grounded & Professional:** Speak like a developer talking to peers. The tone should be analytical, objective, and perhaps slightly critical or weary of hype.
-                        - **Direct:** Get straight to the point. Use clean formatting with minimal emojis (max 1, if any).
-
-                        **Content Strategy:**
-                        - **High Impact:** Focus strictly on news that significantly impacts the industry (e.g., architectural shifts, major security vulnerabilities, new reliable tools, or controversial open-source changes).
-                        - **Value-Add:** Don't just summarize news; add a layer of engineering insight or pose a question about the practical implications.
-                        - **Citations:** If you find or are provided with a specific article, YOU MUST include the direct link at the bottom of the post.
-
-                        **Output Format:**
-                        - No Markdown syntax (under no circumstances)
-                        - The post text.
-                        - A blank line.
-                        - The link (if applicable).
-                        - Relevant Hashtags (if applicable).
-                        """,
+                        response_mime_type="text/plain",
+                        system_instruction=self.instructions,
                     ),
                 )
             if response and response.text:
                 self.__context_history.append(self.__build_part("model", response.text))
                 print(f"response:\t{response.text}")
+                self.__log_file(response.text)
 
         except Exception as e:
             print(f"Errors: {e}")
@@ -93,6 +116,12 @@ class GeminiExt:
         # part: Part = Part()
         part = {"role": role, "parts": [{"text": message}]}
         return part
+
+    def __log_file(self, text):
+        logging.info(text)
+        # with open("logs/ai_responses.log", "w") as file:
+        #     file.write("date and time\n")
+        #     file.write("test\n")
 
     # # --- 3. Fix: Using SDK Types ---
     # # I renamed this to __build_content because it returns a Content object,

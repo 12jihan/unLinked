@@ -4,3 +4,47 @@
 
 https://thehackernews.com/2025/12/critical-rsc-bugs-in-react-and-nextjs.html
 #React #NextJS #Security #CVE #RCE #WebDevelopment
+[INFO] 2025-12-05 15:22:23 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-05 15:22:38 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-05 15:22:38 - A critical Remote Code Execution (RCE) vulnerability, CVE-2025-55182, has been disclosed in React Server Components (RSC) affecting the Flight protocol. This flaw, also tracked as CVE-2025-66478 for Next.js, carries a CVSS 10.0 rating and stems from insecure deserialization. It allows unauthenticated attackers to execute arbitrary code on affected servers, impacting React 19.x and Next.js 15.x/16.x. The issue highlights the inherent risks in complex, widely-adopted frameworks and their dependency chains. Beyond immediate patching, this warrants a deeper look into our deserialization practices and trust boundaries in full-stack architectures.
+
+#Security #React #NextJS #CVE #RCE
+[INFO] 2025-12-05 15:23:18 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-05 15:23:22 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-05 15:23:22 - A critical Remote Code Execution (RCE) vulnerability, CVE-2025-55182, has been disclosed in React Server Components (RSC) affecting the Flight protocol. This flaw, also tracked as CVE-2025-66478 for Next.js, carries a CVSS 10.0 rating and stems from insecure deserialization. It allows unauthenticated attackers to execute arbitrary code on affected servers, impacting React 19.x and Next.js 15.x/16.x. The issue highlights the inherent risks in complex, widely-adopted frameworks and their dependency chains. Beyond immediate patching, this warrants a deeper look into our deserialization practices and trust boundaries in full-stack architectures.
+
+https://www.cybersecuritydive.com/news/critical-vulnerabilities-found-in-react-and-nextjs/701726/
+#Security #React #NextJS #CVE #RCE
+[INFO] 2025-12-08 02:25:49 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-08 02:25:57 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-08 02:25:57 - A critical vulnerability, CVE-2025-34291, has been identified in Langflow, a popular open-source AI agent and workflow platform. The flaw allows for full account takeover and Remote Code Execution (RCE) via a malicious webpage. Analysis points to overly permissive CORS, lack of CSRF protection on token refresh, and an endpoint designed for code execution. The core issue is that default configurations remain vulnerable, requiring manual hardening.
+
+This highlights a recurring challenge in rapidly evolving ecosystems: security often lags behind feature velocity. When building on platforms that allow arbitrary code execution or flexible integrations, understanding the security implications of defaults is paramount. How are teams balancing developer agility with robust security baselines in AI agent development?
+
+https://www.obsidiansecurity.com/blog/cve-2025-34291-critical-account-takeover-and-rce-vulnerability-in-the-langflow-ai-agent-workflow-platform/
+#Cybersecurity #AI #Developer #RCE #OpenSource
+
+
+[INFO] 2025-12-08 02:31:10 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-08 02:31:19 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-08 02:31:19 - A critical RCE vulnerability, CVE-2025-55182 (React2Shell), has been identified in React Server Components (RSC) and added to CISA's Known Exploited Vulnerabilities catalog. This flaw enables unauthenticated attackers to achieve Remote Code Execution without requiring specific setup. The vulnerability stems from insecure deserialization within React's Flight protocol, used for server-client communication.
+
+This highlights the persistent threat of deserialization vulnerabilities, even within widely adopted frameworks. It underscores the necessity for immediate patching of affected RSC implementations. Beyond reactive fixes, how are engineering teams approaching proactive threat modeling and secure data handling for core framework components, especially those involving inter-process communication?
+
+https://thehackernews.com/2025/12/critical-react2shell-flaw-added-to-cisa.html
+#Cybersecurity #React #RCE #Vulnerability #Developer
+
+
+[INFO] 2025-12-08 02:32:06 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-08 02:32:17 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-08 02:32:17 - The trend of commercial entities behind widely used open-source projects shifting to more restrictive licenses continues to present significant challenges for developers and organizations. Recent moves by projects such as Redis, HashiCorp (Terraform), and Elastic (Elasticsearch, Kibana) to adopt licenses like SSPL, BSL, or AGPL aim to address concerns about cloud providers leveraging their work without contributing back.
+
+This creates a complex landscape. While aiming for sustainable business models, these changes force users to re-evaluate compliance risks, licensing costs, or explore community-driven forks and alternatives like OpenSearch. It underscores the fragility of relying solely on "open-source" labels without a deep understanding of underlying license terms and potential shifts.
+
+How are engineering teams proactively managing software supply chain risks related to evolving open-source licenses, beyond reactive compliance checks?
+
+https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF1hjrHzDTGkJcNHTsR8WNbTo5h291_gPaPyvOxZuDF8x0-lSLsFojx8zmYjlcZ-ZA0Q4_wC3qhkdYzpUMgyxUPKAgMEKhEN0UuZHINaQ3E2L96k6a_9lCuqxm49925Ou9EXPGU7N1CdZQBE_lYw6KVGGy5LoB7F7pR1cq1TueOuHXdvIF4vkEOxVGP49_n6dB7hwn9bv--b9tPFtrXb_xnQBYPOAJfJqhUVCCu
+#OpenSource #Licensing #SoftwareSupplyChain #Developer #Architecture
+
+https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF1hjrHzDTGkJcNHTsR8WNbTo5h291_gPaPyvOxZuDF8x0-lSLsFojx8zmYjlcZ-ZA0Q4_wC3qhkdYzpUMgyxUPKAgMEKhEN0UuZHINaQ3E2L96k6a_9lCuqxm49925Ou9EXPGU7N1CdZQBE_lYw6KVGGy5LoB7F7pR1cq1TueOuHXdvIF4vkEOxVGP49_n6dB7hwn9bv--b9tPFtrXb_xnQBYPOAJfJqhUVCCu
+[INFO] 2025-12-08 02:33:34 - AFC is enabled with max remote calls: 10.

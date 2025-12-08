@@ -3,6 +3,7 @@ import os
 from google.genai import Client
 from google.genai import types
 from google.genai.types import (
+    Candidate,
     GenerateContentConfig,
     GenerateContentResponse,
     Modality,
@@ -80,11 +81,30 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                         system_instruction=self.instructions,
                     ),
                 )
-            if response and response.text:
-                self.__context_history.append(self.__build_part("model", response.text))
-                print(f"response:\t{response.text}")
-                self.__log_file(response.text)
+            if response and response.candidates:
+                post_text = ""
+                if response.text:
+                    post_text = response.text.strip()
+                    # Abstract to away if possible to make usage less taxing
+                    self.__context_history.append(
+                        self.__build_part("model", response.text)
+                    )
 
+                clean_link = ""
+                candidate = response.candidates[0]
+
+                if (
+                    candidate.grounding_metadata
+                    and candidate.grounding_metadata.grounding_chunks
+                ):
+                    for chunk in candidate.grounding_metadata.grounding_chunks:
+                        if chunk.web and chunk.web.uri:
+                            clean_link = chunk.web.uri
+                            break
+
+                final_output = f"{post_text}\n\n{clean_link}"
+                print(final_output)
+                self.__log_file(final_output)
         except Exception as e:
             print(f"Errors: {e}")
 

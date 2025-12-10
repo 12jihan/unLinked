@@ -1,61 +1,27 @@
 from gemini.gemini_ext import GeminiExt
+from linkedin.linkedin_ext import LinkedInExt
+
 from dotenv import load_dotenv
 import os
 
-running = True
-
 
 def main():
+    # global variable to control for running the program
+    running = True
     # add vars to the env
     load_dotenv()
 
-    # URL, HEADER, BODY, REQUEST
-    # url: str = "https://api.linkedin.com/v2/ugcPosts"
-    # header: dict[str, str] = {
-    #     "Authorization": f"Bearer {access_token}",
-    #     "X-Restli-Protocol-Version": "2.0.0",
-    #     "Content-Type": "application/json",
-    #     "LinkedIn-Version": api_version if api_version else "",
-    # }
-
-    # req_body = {
-    #     "author": f"{user_id}",
-    #     "lifecycleState": "PUBLISHED",
-    #     "specificContent": {
-    #         "com.linkedin.ugc.ShareContent": {
-    #             "shareCommentary": {"text": "This is an automated test..."},
-    #             "shareMediaCategory": "IMAGE",
-    #             "media": [
-    #                 {
-    #                     "status": "READY",
-    #                     "description": {"text": "test media"},
-    #                     "media": "urn:li:digitalmediaAsset:C5422AQEbc381YmIuvg",
-    #                     "title": {"text": "This is a test"},
-    #                 }
-    #             ],
-    #         },
-    #     },
-    #     # "visibility" an either be PUBLIC | CONNECTIONS Create ENUM LATER??
-    #     "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "CONNECTIONS"},
-    # }
-
-    # resp: requests.Response = requests.post(url=url, headers=header, json=req_body)
-    #
-    # if resp.status_code == 201:
-    #     data = resp.json()
-    #     print("Title", data["title"])
-    # else:
-    #     print(f"Request failed: {resp.status_code}")
-    #     print(f"body: {resp.json()}")
-
     gem_ext = GeminiExt()
+    linkedin_ext = LinkedInExt()
     while running and gem_ext:
         user_input = "hello"
         user_input = input("\n Enter a message: \n")
         if user_input == "##quit":
-            return
-        os.system("clear")
-        gem_ext.generate_content(user_input)
+            running = False
+        # os.system("clear")
+        if running:
+            linkedin_ext.post_text(user_input)
+            # gem_ext.generate_content(user_input)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,8 @@
 import logging
 import os
 from google.genai import Client
-from google.genai import types
+
 from google.genai.types import (
-    Candidate,
     GenerateContentConfig,
     GenerateContentResponse,
     Modality,
@@ -53,6 +52,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         self.__google_search_tool = Tool(google_search=GoogleSearch())
         self.__models = list(self.__client.models.list())
         self.__context_history = []
+        self.__current_context = ""
         self.__prompt = ""
 
         logging.basicConfig(
@@ -98,19 +98,29 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                     and candidate.grounding_metadata.grounding_chunks
                 ):
                     for chunk in candidate.grounding_metadata.grounding_chunks:
+                        print(f"test: {chunk}")
                         if chunk.web and chunk.web.uri:
                             clean_link = chunk.web.uri
                             break
 
                 final_output = f"{post_text}\n\n{clean_link}"
                 print(final_output)
+                self.__current_context = final_output
                 self.__log_file(final_output)
         except Exception as e:
             print(f"Errors: {e}")
 
     @property
+    def current_context(self):
+        return self.__current_context
+
+    @current_context.setter
+    def current_context(self, value: str):
+        self.__current_context = value
+
+    @property
     def api_key(self):
-        self.__api_key
+        return self.__api_key
 
     @api_key.setter
     def api_key(self, value: str):
@@ -154,3 +164,22 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
     #     content = types.Content(role=tag, parts=[part])
     #
     #     return content
+    #
+    #
+
+    # TODO: Handle Singletons for things like logging and maybe gemini client:
+    # def singleton(cls):
+    # instances = {}  # Dictionary to hold instances
+    #
+    # def get_instance(*args, **kwargs):
+    #     if cls not in instances:
+    #         instances[cls] = cls(*args, **kwargs)
+    #     return instances[cls]
+    #
+    # return get_instance
+
+    # Now you just add @singleton above any class
+    # @singleton
+    # class ConfigManager:
+    #     def __init__(self):
+    #         self.setting = "Dark Mode"

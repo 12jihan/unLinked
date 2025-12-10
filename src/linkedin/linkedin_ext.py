@@ -105,8 +105,8 @@ class LinkedInExt:
         print(f"request body: {self.__request_body}")
 
         if link_url:
-            print(f"Link Found: {link_url}")
             self.__post_link = link_url
+            print(f"Link Found: {self.__post_link}")
 
             # switch category to ARTICLE
             self.__request_body_model.specificContent.ugcShareContent.shareMediaCategory = "ARTICLE"
@@ -120,6 +120,7 @@ class LinkedInExt:
                 link_media
             ]
         else:
+            print("No Link Found")
             # Text only
             self.__request_body_model.specificContent.ugcShareContent.shareMediaCategory = "NONE"
             self.__request_body_model.specificContent.ugcShareContent.media = []
@@ -133,10 +134,9 @@ class LinkedInExt:
 
         if response.status_code == 201:
             print("POST Request Successful!")
-
-            print("\nServer Response (JSON):")
+            print("Server Response:")
             print(json.dumps(response.json(), indent=4) + "\n\n")
         else:
             print(f"POST Request Failed. Status Code: {response.status_code}\n\n")
-            print("Error Message:\n\n")
-            print(json.dumps(response.json(), indent=4))
+            print("Error Message:")
+            print(json.dumps(response.json(), indent=4) + "\n\n")

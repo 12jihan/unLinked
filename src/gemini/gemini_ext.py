@@ -12,6 +12,10 @@ from google.genai.types import (
 
 
 class GeminiExt:
+    # One of the blocking formats
+    # [Source Link]
+    # 2.  **Impact:** Prioritize architectural shifts, security vulnerabilities (CVEs), or controversial open-source changes.
+
     instructions = """
 ### ROLE & OBJECTIVE
 You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse recent tech news and draft engaging, professional LinkedIn posts for a peer audience of developers.
@@ -23,8 +27,8 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
 ### CONTENT GUIDELINES
 1.  **Recency:** Focus on news from the last 5 months.
-2.  **Impact:** Prioritize architectural shifts, security vulnerabilities (CVEs), or controversial open-source changes.
-3.  **Value-Add:** Do not just summarize. Add engineering insight or pose a question about implementation.
+2.  **Impact:** Prioritize architectural shifts, security vulnerabilities (CVEs), controversial open-source changes, break throughs in technology, challenging times in technology, or conversation about the software engineering community.
+3.  **Value-Add:** Do not just summarize. Add engineering insight or pose a question about implementation, but not too many questions.
 
 ### QUANTITY & OUTPUT
 * **Single Output:** You must generate exactly ONE (1) post. Do not provide variations, options, or multiple drafts.
@@ -36,13 +40,13 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 * **Structure:**
     [Post Text]
     [Blank Line]
-    [Source Link]
     [Hashtags]
 
 ### CRITICAL LINK RULES
 * **No Hallucinations:** You must ONLY provide links that were explicitly returned by the Google Search tool.
 * **Verification:** Do not guess URLs based on headlines. If the search tool does not provide a direct, valid URL, do not include a link at all.
-* **Clean Links:** Do not use "google.com/url?..." redirects or internal tracking IDs. Output the direct article URL.
+* **Clean Links:** Do not use "google.com/url?...", "https://vertexaisearch.cloud.google.com/", redirects or internal tracking IDs. Output the direct article URL.
+* **Proper Format:** Do not use more than 1 URL. Ideally we want only 1 link for each post.
     """
 
     def __init__(self):
@@ -53,6 +57,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         self.__models = list(self.__client.models.list())
         self.__context_history = []
         self.__current_context = ""
+        self.__current_link = ""
         self.__prompt = ""
 
         logging.basicConfig(
@@ -90,7 +95,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                         self.__build_part("model", response.text)
                     )
 
-                clean_link = ""
+                self.__current_link = ""
                 candidate = response.candidates[0]
 
                 if (
@@ -98,17 +103,26 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                     and candidate.grounding_metadata.grounding_chunks
                 ):
                     for chunk in candidate.grounding_metadata.grounding_chunks:
-                        print(f"test: {chunk}")
                         if chunk.web and chunk.web.uri:
-                            clean_link = chunk.web.uri
+                            self.__current_link = chunk.web.uri
                             break
 
-                final_output = f"{post_text}\n\n{clean_link}"
-                print(final_output)
+                # print(f"{clean_link}")
+                # final_output = f"{post_text}\n\n{self.__current_link}"
+                final_output = f"{post_text}"
+                # print(final_output)
                 self.__current_context = final_output
                 self.__log_file(final_output)
         except Exception as e:
             print(f"Errors: {e}")
+
+    @property
+    def current_link(self):
+        return self.__current_link
+
+    @current_link.setter
+    def current_link(self, value: str):
+        self.__current_link = value
 
     @property
     def current_context(self):

@@ -29,7 +29,9 @@ class Visibility(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     memberNetworkVisibility: str = Field(
-        default="CONNECTIONS", alias="com.linkedin.ugc.MemberNetworkVisibility"
+        # default="CONNECTIONS", alias="com.linkedin.ugc.MemberNetworkVisibility"
+        default="PUBLIC",
+        alias="com.linkedin.ugc.MemberNetworkVisibility",
     )
 
 

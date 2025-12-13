@@ -472,3 +472,36 @@ As engineers, how do we navigate this evolving landscape? It's critical to under
 [INFO] 2025-12-10 21:30:22 - A critical RCE vulnerability, CVE-2025-55182, dubbed "React2Shell," is actively being exploited in React JavaScript library versions 19.0.0, 19.1.0, 19.1.1, and 19.2.0. This pre-authentication flaw in React Server Components allows threat actors to execute arbitrary code via malicious HTTP requests to Server Function endpoints. Given React's widespread use, the attack surface is substantial. Teams using affected versions should prioritize patching immediately. This underscores the persistent challenge of securing critical open-source dependencies within our stacks.
 
 #ReactJS #Cybersecurity #Vulnerability #RCE #OpenSource
+[INFO] 2025-12-11 13:11:07 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2025-12-11 13:11:07 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=CiRtb2RlbHMvdmVvLTMuMS1mYXN0LWdlbmVyYXRlLXByZXZpZXc%3D "HTTP/1.1 200 OK"
+[INFO] 2025-12-11 13:11:07 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-11 13:11:14 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-11 13:11:14 - The recent disclosure and active exploitation of CVE-2025-55182, dubbed "React2Shell," is a stark reminder of critical vulnerabilities lurking in foundational web technologies. This unauthenticated remote code execution flaw, with a maximum CVSS score of 10.0, impacts React Server Components in React 19.x and Next.js 15.x/16.x when using App Router.
+
+The urgency here is paramount. Threat intelligence teams have observed active exploitation attempts by nation-state actors within hours of public disclosure. A standard Next.js application built for production can be vulnerable by default, requiring only a crafted HTTP request for exploitation. This isn't just a theoretical threat; it's a rapidly weaponized vulnerability.
+
+For engineering teams utilizing React Server Components or Next.js with App Router, immediate patching is non-negotiable. Beyond immediate mitigation, this incident underscores the broader need for continuous security monitoring, robust software supply chain practices, and a deeper understanding of the "flight" protocol and its deserialization mechanisms. We often assume component security, but this proves even infrastructure-level components can harbor fatal flaws.
+
+What are your teams doing to quickly identify and address such critical, actively exploited vulnerabilities in your dependencies?
+
+#cybersecurity #react #nextjs #vulnerability #RCE
+[INFO] 2025-12-12 13:57:17 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2025-12-12 13:57:18 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=CiRtb2RlbHMvdmVvLTMuMS1mYXN0LWdlbmVyYXRlLXByZXZpZXc%3D "HTTP/1.1 200 OK"
+[INFO] 2025-12-12 13:57:18 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-12 13:57:26 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-12 13:57:26 - A recent Patch Tuesday brought a critical remote code execution (RCE) vulnerability in GitHub Copilot for JetBrains (CVE-2025-64671) to light. With a CVSS score of 8.4, this flaw could allow unauthenticated attackers to execute arbitrary code. The interesting angle here is the vector: a developer tool, widely adopted for productivity, becoming a potential point of compromise. It underscores the expanding attack surface with AI integration into our IDEs. Beyond the immediate patch, it prompts a deeper consideration of the supply chain risks associated with advanced tooling and the need for rigorous security-by-design principles, even in environments we inherently trust for development.
+
+How are teams evaluating the inherent risks of integrating AI-powered developer tools that require elevated permissions or interact deeply with local environments?
+
+#Cybersecurity #SoftwareEngineering #CVE #GitHubCopilot #DeveloperTools
+[INFO] 2025-12-12 13:59:40 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2025-12-12 13:59:40 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=CiRtb2RlbHMvdmVvLTMuMS1mYXN0LWdlbmVyYXRlLXByZXZpZXc%3D "HTTP/1.1 200 OK"
+[INFO] 2025-12-12 13:59:40 - AFC is enabled with max remote calls: 10.
+[INFO] 2025-12-12 13:59:47 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2025-12-12 13:59:47 - The recent critical vulnerability, CVE-2025-55182 (CVSS 10.0), dubbed "React2Shell," highlights a significant deserialization flaw in React Server Components (RSC) Flight protocol. This allows unauthenticated remote code execution, impacting not just React but also frameworks like Next.js, Waku, Vite, React Router, and RedwoodSDK.
+
+The core issue stems from unsafe deserialization of payloads sent to React Server Function endpoints. If your application uses RSC or any of the affected frameworks, patching immediately is crucial. This underscores the persistent and severe risks associated with untrusted data deserialization, a vector we've seen exploited repeatedly across different stacks. It's a stark reminder to rigorously audit serialization boundaries and consider safer alternatives to default mechanisms when handling external input.
+
+https://thehackernews.com/2025/12/critical-rsc-bugs-in-react-and-nextjs.html
+
+#SoftwareSecurity #React #RCE #Deserialization #CVE

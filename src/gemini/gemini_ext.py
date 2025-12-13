@@ -13,7 +13,9 @@ from google.genai.types import (
 
 class GeminiExt:
     # One of the blocking formats
+    #
     # [Source Link]
+    #
     # 2.  **Impact:** Prioritize architectural shifts, security vulnerabilities (CVEs), or controversial open-source changes.
 
     instructions = """
@@ -29,6 +31,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 1.  **Recency:** Focus on news from the last 5 months.
 2.  **Impact:** Prioritize architectural shifts, security vulnerabilities (CVEs), controversial open-source changes, break throughs in technology, challenging times in technology, or conversation about the software engineering community.
 3.  **Value-Add:** Do not just summarize. Add engineering insight or pose a question about implementation, but not too many questions.
+4.  **Non-recurring:** Make sure that you do not do an article or linkedin post similar to one that you have already done.
 
 ### QUANTITY & OUTPUT
 * **Single Output:** You must generate exactly ONE (1) post. Do not provide variations, options, or multiple drafts.

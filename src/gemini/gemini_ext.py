@@ -10,6 +10,8 @@ from google.genai.types import (
     GoogleSearch,
 )
 
+from models.GeminiModels import GeminiPost
+
 
 class GeminiExt:
     # One of the blocking formats
@@ -29,7 +31,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
 ### CONTENT GUIDELINES
 1.  **Recency:** Focus on news from the last 5 months.
-2.  **Impact:** Prioritize architectural shifts, security vulnerabilities (CVEs), controversial open-source changes, break throughs in technology, challenging times in technology, or conversation about the software engineering community.
+2.  **Impact:** Prioritize architectural shifts, controversial open-source changes, break throughs in technology, challenging times in technology, or conversation about the software engineering community.
 3.  **Value-Add:** Do not just summarize. Add engineering insight or pose a question about implementation, but not too many questions.
 4.  **Non-recurring:** Make sure that you do not do an article or linkedin post similar to one that you have already done.
 
@@ -41,9 +43,10 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 * **Format:** Plain text only. No Markdown (no bold/italics).
 * **Emojis:** Max 1 emoji. Ideally 0.
 * **Structure:**
-    [Post Text]
-    [Blank Line]
-    [Hashtags]
+    return raw json string without Markdown formatting (like ```json).
+    structure example:
+    [{"article_date": Date, post_text: String, hash_tags: Array[String], link: string}]
+* **Conditions:** Make sure that if you are using quotation marks in the summary that you use singles and not the doubles, specifically for text processing.
 
 ### CRITICAL LINK RULES
 * **No Hallucinations:** You must ONLY provide links that were explicitly returned by the Google Search tool.
@@ -85,13 +88,17 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                     config=GenerateContentConfig(
                         response_modalities=[Modality.TEXT],
                         tools=[self.__google_search_tool],
-                        response_mime_type="text/plain",
+                        # response_mime_type="application/json",
+                        # response_schema=GeminiPost,
                         system_instruction=self.instructions,
                     ),
                 )
             if response and response.candidates:
                 post_text = ""
                 if response.text:
+                    print("json")
+                    print(response.text)
+
                     post_text = response.text.strip()
                     # Abstract to away if possible to make usage less taxing
                     self.__context_history.append(

@@ -29,7 +29,7 @@ class BotController:
             print(f"bot link:\n{link}")
 
             if link:
-                self.test_link(link)
+                # self.test_link(link)
                 pass
                 # linkedin.post_text(context)
             else:

@@ -1,0 +1,35 @@
+name: test-vectordb
+
+services:
+  database:
+    image: pgvector/pgvector:pg16
+    container_name: vector-database
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=vectordb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgvector-db:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - basic-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  pgvector-db:
+    driver: local
+
+networks:
+  basic-network:
+    driver: bridge

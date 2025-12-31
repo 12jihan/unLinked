@@ -9,12 +9,12 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=vectordb
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - pgvector-db:/var/lib/postgresql/data
+      - pgvector-data:/var/lib/postgresql/data
     restart: unless-stopped
-    networks:
-      - basic-network
+    # networks:
+    #   - basic-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -27,7 +27,7 @@ services:
         max-file: "3"
 
 volumes:
-  pgvector-db:
+  pgvector-data:
     driver: local
 
 networks:

@@ -13,7 +13,7 @@ class MemoryController:
         self.api_key: str | None = os.getenv("API_KEY")
         self.db_config = {
             "host": "localhost",
-            "port": 5432,
+            "port": 5433,
             "dbname": "vectordb",
             "user": "postgres",
             "password": "postgres",
@@ -25,8 +25,8 @@ class MemoryController:
         self._init_db()
 
     def _connect(self, register=True):
-        conn = psycopg.connect(self.db_url)
-        # conn = psycopg.connect(**self.db_config)
+        # conn = psycopg.connect(self.db_url)
+        conn = psycopg.connect(**self.db_config)
         if register:
             register_vector(conn)
         return conn

@@ -24,7 +24,6 @@ def main():
             running = False
         # os.system("clear")
         if running:
-            mem.test()
             # controller.init()
             pass
             # linkedin_ext.post_text(user_input)

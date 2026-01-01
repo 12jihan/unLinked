@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from google.genai import Client
@@ -9,7 +10,9 @@ from google.genai.types import (
     Tool,
     GoogleSearch,
 )
+from psycopg import Error
 
+from models.DataModels import AIResponse
 from models.GeminiModels import GeminiPost
 
 
@@ -43,9 +46,9 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 * **Format:** Plain text only. No Markdown (no bold/italics).
 * **Emojis:** Max 1 emoji. Ideally 0.
 * **Structure:**
-    return raw json string without Markdown formatting (like ```json).
-    structure example:
-    [{"article_date": Date, post_text: String, hash_tags: Array[String], link: string}]
+    return stringified json without Markdown formatting, and NO code fencing backticks.
+   json structure example:
+    - {"text": String, "hashtags": Array[String], "link": string}
 * **Conditions:** Make sure that if you are using quotation marks in the summary that you use singles and not the doubles, specifically for text processing.
 
 ### CRITICAL LINK RULES
@@ -73,15 +76,14 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
             datefmt="%Y-%m-%d %H:%M:%S",
         )
 
-    def generate_content(self, message: str):
+    def generate_content(self, message: str) -> AIResponse | None:
         self.__prompt: str = message
         response: GenerateContentResponse | None = None
+        post_text = ""
 
         try:
             if len(self.prompt) > 0:
-                print(f"message:\t{self.prompt}")
                 self.__context_history.append(self.__build_part("user", self.prompt))
-                print("Thinking ...")
                 response = self.__client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=self.__context_history,
@@ -93,21 +95,18 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                         system_instruction=self.instructions,
                     ),
                 )
-            if response and response.candidates:
-                post_text = ""
-                if response.text:
-                    print("json")
-                    print(response.text)
+                print("Thinking ...")
 
+            if response and response.candidates:
+                if response.text:
                     post_text = response.text.strip()
                     # Abstract to away if possible to make usage less taxing
-                    self.__context_history.append(
-                        self.__build_part("model", response.text)
-                    )
+                    # self.__context_history.append(
+                    #     self.__build_part("model", response.text)
+                    # )
 
                 self.__current_link = ""
                 candidate = response.candidates[0]
-
                 if (
                     candidate.grounding_metadata
                     and candidate.grounding_metadata.grounding_chunks
@@ -117,14 +116,27 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                             self.__current_link = chunk.web.uri
                             break
 
-                # print(f"{clean_link}")
-                # final_output = f"{post_text}\n\n{self.__current_link}"
                 final_output = f"{post_text}"
-                # print(final_output)
                 self.__current_context = final_output
                 self.__log_file(final_output)
+
+            data: AIResponse | None = None
+            if post_text:
+                temp = json.loads(post_text)
+                if temp["text"]:
+                    data = AIResponse(
+                        text=temp["text"], link=temp["link"], hashtags=temp["hashtags"]
+                    )
+            if data:
+                print("AI Response Successfully Converted")
+            else:
+                raise Exception(f"Data is missing please check AI Response:\n{data}")
+
+            return data
+
         except Exception as e:
             print(f"Errors: {e}")
+            return None
 
     @property
     def current_link(self):

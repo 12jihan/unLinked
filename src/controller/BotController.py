@@ -1,8 +1,10 @@
 import json
 from requests import request
 import requests
+from controller.MemoryController import MemoryController
 from gemini.gemini_ext import GeminiExt
 from linkedin.linkedin_ext import LinkedInExt
+from models.DataModels import AIResponse, DocumentCreate
 
 
 class BotController:
@@ -10,31 +12,40 @@ class BotController:
         pass
 
     def init(self):
+        memory = MemoryController()
         linkedin = LinkedInExt()
         gemini = GeminiExt()
 
         try:
             if not linkedin and not gemini:
                 raise RuntimeError(
-                    "linkedin or gemini extension not properly initialized"
+                    "Linkedin or gemini extension not properly initialized"
                 )
             else:
-                print("everything is running properly")
-
-            gemini.generate_content("find an article")
-            context = gemini.current_context
-            link = gemini.current_link
-
-            print(f"\nbot context:\n{context}")
-            print(f"bot link:\n{link}")
-
-            if link:
-                # self.test_link(link)
                 pass
-                # linkedin.post_text(context)
-            else:
-                pass
-                # linkedin.post_text(context, link_url=link)
+                # print("everything is running properly")
+
+            gem_data: AIResponse | None = gemini.generate_content("find an article")
+
+            # print(f"bot context:\n{context}")
+            # print(f"bot link:\n{link}")
+
+            if gem_data:
+                data = DocumentCreate(
+                    text=gem_data.text, link=gem_data.link, hashtags=gem_data.hashtags
+                )
+                memory.add(data)
+
+                print("Checking link:")
+                if gem_data.link:
+                    print("-\tLink:")
+                    print(gem_data.link)
+                    # linkedin.post_text(context)
+                else:
+                    print("-\tLink:")
+                    print(gem_data.link)
+                    # linkedin.post_text(context, link_url=link)
+
         except RuntimeError as e:
             print(e)
 

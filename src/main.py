@@ -24,7 +24,7 @@ def main():
             running = False
         # os.system("clear")
         if running:
-            # controller.init()
+            controller.init()
             pass
             # linkedin_ext.post_text(user_input)
             # gem_ext.generate_content(user_input)

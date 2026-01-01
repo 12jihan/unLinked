@@ -13,10 +13,10 @@ class MemoryController:
         self.api_key: str | None = os.getenv("API_KEY")
         self.db_config = {
             "host": "localhost",
-            "port": 5433,
-            "dbname": "vectordb",
-            "user": "postgres",
-            "password": "postgres",
+            "port": os.getenv("PG_PORT"),
+            "dbname": os.getenv("PG_NAME"),
+            "user": os.getenv("PG_USER"),
+            "password": os.getenv("PG_PASS"),
         }
         self.db_url = "postgresql://postgres:postgres@localhost:5432/vectordb"
         self.embeded_dim = 768
@@ -48,9 +48,11 @@ class MemoryController:
 
         with self._connect() as conn:
             conn.execute("""
-            CREATE TABLE IF NOT EXISTS vector (
+            CREATE TABLE IF NOT EXISTS documents (
                 id SERIAL PRIMARY KEY,
                 text TEXT NOT NULL,
+                link TEXT,
+                hashtags TEXT[] DEFAULT '{}',
                 embedding vector(768),
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 modified_at TIMESTAMPTZ DEFAULT NOW()
@@ -63,21 +65,24 @@ class MemoryController:
         with self._connect() as conn:
             row = conn.execute(
                 """
-                INSERT INTO documents (text, embedding)
-                VALUES (%s, %s)
-                RETURNING id, text, embedding, created_at, modified_at
+                INSERT INTO documents (text,link, hashtags, embedding)
+                VALUES (%s, %s, %s, %s)
+                RETURNING id, text, link, hashtags, embedding, created_at, modified_at
                 """,
-                (doc.text, embedding),
+                (doc.text, doc.link, doc.hashtags, embedding),
             ).fetchone()
             conn.commit()
+            print(f"rows:\n{row}")
 
             if row:
                 return Document(
                     id=row[0],
                     text=row[1],
-                    created_at=row[2],
-                    modified_at=row[3],
-                    embedding=row[4],
+                    link=row[2],
+                    hashtags=row[3],
+                    created_at=row[4],
+                    modified_at=row[5],
+                    embedding=row[6],
                 )
             return None
 
@@ -99,9 +104,11 @@ class MemoryController:
                 return Document(
                     id=row[0],
                     text=row[1],
-                    embedding=list(row[2]),
-                    created_at=row[3],
-                    modified_at=row[4],
+                    link=row[2],
+                    hashtags=row[3],
+                    embedding=list(row[4]),
+                    created_at=row[5],
+                    modified_at=row[6],
                 )
             return None
 
@@ -121,9 +128,11 @@ class MemoryController:
                 DocumentSearchResult(
                     id=r[0],
                     text=r[1],
-                    created_at=r[0],
-                    modified_at=r[0],
-                    similarity=r[0],
+                    link=r[2],
+                    hashtags=r[3],
+                    created_at=r[4],
+                    modified_at=r[5],
+                    similarity=r[6],
                 )
                 for r in rows
             ]
@@ -138,9 +147,11 @@ class MemoryController:
                 return Document(
                     id=row[0],
                     text=row[1],
-                    embedding=list(row[2]),
-                    created_at=row[3],
-                    modified_at=row[4],
+                    link=row[2],
+                    hashtags=row[3],
+                    embedding=list(row[4]),
+                    created_at=row[5],
+                    modified_at=row[6],
                 )
             return None
 

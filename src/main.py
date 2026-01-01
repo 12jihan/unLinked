@@ -26,10 +26,9 @@ def main():
         # os.system("clear")
         if running:
             controller.init()
-            pass
+            time.sleep(900)
             # linkedin_ext.post_text(user_input)
             # gem_ext.generate_content(user_input)
-        time.sleep(3600)
 
 
 if __name__ == "__main__":

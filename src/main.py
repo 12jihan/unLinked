@@ -1,3 +1,4 @@
+import time
 from controller.MemoryController import MemoryController
 from controller.BotController import BotController
 
@@ -19,15 +20,16 @@ def main():
     mem = MemoryController()
 
     while running and gem_ext and linkedin_ext:
-        user_input = input("\n Enter a message: \n")
-        if user_input == "##quit":
-            running = False
+        # user_input = input("\n Enter a message: \n")
+        # if user_input == "##quit":
+        #     running = False
         # os.system("clear")
         if running:
             controller.init()
             pass
             # linkedin_ext.post_text(user_input)
             # gem_ext.generate_content(user_input)
+        time.sleep(3600)
 
 
 if __name__ == "__main__":

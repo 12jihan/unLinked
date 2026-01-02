@@ -199,9 +199,15 @@ Gemini responses are logged to `logs/gemini_responses.log` with timestamps.
 
 ## License
 
-[Add your license here]
+MIT License
+Feel free to use it however you want I don't care all that much
 
 ## Contributing
 
-[Add contribution guidelines here]
+- Keep PRs focused — one feature or fix per PR
+- Update the README if adding new features or changing configuration
+- Be respectful in discussions
 
+### Questions?
+
+Open an issue for bugs, feature requests, or questions.

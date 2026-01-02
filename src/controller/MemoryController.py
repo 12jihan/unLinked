@@ -1,32 +1,34 @@
 import os
-from google.genai.types import _DeleteDocumentParameters
 import psycopg
+from psycopg.connection import Connection
 
 from models.DataModels import Document, DocumentCreate, DocumentSearchResult
 from pgvector.psycopg import register_vector
-from google import genai
 from google.genai import Client
 
 
 class MemoryController:
+    db_config: dict[str, str]
+
     def __init__(self):
         self.api_key: str | None = os.getenv("API_KEY")
-        self.db_config = {
-            "host": "localhost",
-            "port": os.getenv("PG_PORT"),
-            "dbname": os.getenv("PG_NAME"),
-            "user": os.getenv("PG_USER"),
-            "password": os.getenv("PG_PASS"),
-        }
-        self.db_url = "postgresql://postgres:postgres@localhost:5432/vectordb"
-        self.embeded_dim = 768
+        host = os.getenv("PG_HOST")
+        port = os.getenv("PG_PORT")
+        dbname = os.getenv("PG_NAME")
+        user = os.getenv("PG_USER")
+        password = os.getenv("PG_PASS")
 
+        if not all([host, port, dbname, user, password]):
+            raise ValueError("Missing required values for database connection")
+
+        self.db_url = f"postgresql://{user}:{password}@{host}:{port}/{dbname}"
+        self.embeded_dim = 768
         self.client = Client(api_key=self.api_key)
+
         self._init_db()
 
     def _connect(self, register=True):
-        # conn = psycopg.connect(self.db_url)
-        conn = psycopg.connect(**self.db_config)
+        conn = psycopg.connect(self.db_url)
         if register:
             register_vector(conn)
         return conn

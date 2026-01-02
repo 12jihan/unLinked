@@ -40,7 +40,7 @@ src/
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone git@github.com:12jihan/unLinked.git
    cd unlinked
    ```
 
@@ -204,3 +204,4 @@ Gemini responses are logged to `logs/gemini_responses.log` with timestamps.
 ## Contributing
 
 [Add contribution guidelines here]
+

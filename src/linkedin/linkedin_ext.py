@@ -75,13 +75,15 @@ class LinkedInExt:
                     "shareMediaCategory": "NONE",
                 },
             },
-            "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "CONNECTIONS"},
+            # "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "CONNECTIONS"},
+            "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"},
         }
 
         self.__request_body_model = TextPostRequestBody(
             author=os.getenv("USER_ID", ""),
             lifecycleState="PUBLISHED",
-            visibility=Visibility(**{"memberNetworkVisibility": "CONNECTIONS"}),
+            # visibility=Visibility(**{"memberNetworkVisibility": "CONNECTIONS"}),
+            visibility=Visibility(**{"memberNetworkVisibility": "PUBLIC"}),
             specificContent=SpecificContent(
                 **{
                     "ugcShareContent": ShareContent(
@@ -98,9 +100,19 @@ class LinkedInExt:
             "LinkedIn-Version": self.__api_version if self.__api_version else "",
         }
 
-    def post_text(self, text: str, link_url: str | None = None):
-        self.__post_text = text
-        self.__request_body_model.specificContent.ugcShareContent.shareCommentary.text = text
+    def post_text(
+        self, text: str, hashtags: list[str] | None = None, link_url: str | None = None
+    ):
+        full_text: str = text
+        print(f"hashtags: {hashtags}")
+
+        if hashtags:
+            hashtag_str = " ".join(f"#{tag.lstrip('#')}" for tag in hashtags)
+            full_text = f"{text}\n\n{hashtag_str}"
+
+        self.__post_text = full_text
+        self.__request_body_model.specificContent.ugcShareContent.shareCommentary.text = full_text
+
         print(f"request header: {self.__header}")
         print(f"request body: {self.__request_body}")
 

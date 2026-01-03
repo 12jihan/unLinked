@@ -75,7 +75,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                     config=GenerateContentConfig(
                         temperature=0.90,
                         top_p=0.95,
-                        # top_k=40,
+                        top_k=1,
                         # max_output_tokens=1024,
                         response_modalities=[Modality.TEXT],
                         tools=[self.__google_search_tool],

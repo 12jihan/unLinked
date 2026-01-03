@@ -20,10 +20,14 @@ class BotController:
                 raise RuntimeError("LinkedIn or Gemini Ext. not properly initialized")
 
             protocol: str = "Find an article and create a post"
-            gem_data: AIResponse | None = self.gemini.generate_content(protocol)
+            gem_data: AIResponse | None = self.gemini.generate_content(
+                message=protocol, temp=0.75, tp=0.95, tk=1.0
+            )
 
             if gem_data:
-                if not self.memory.is_unique(gem_data.text, threshold=0.85):
+                print(f"text:\n\t{gem_data.text}\n\n")
+                print(f"link:\n\t{gem_data.link}\n\n")
+                if not self.memory.is_unique(gem_data.text, threshold=0.65):
                     return
 
                 data = DocumentCreate(

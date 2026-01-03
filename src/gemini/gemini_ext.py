@@ -61,7 +61,9 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         self.__current_link = ""
         self.__prompt = ""
 
-    def generate_content(self, message: str) -> AIResponse | None:
+    def generate_content(
+        self, message: str, temp: float = 0.90, tp: float = 0.95, tk: float = 1.0
+    ) -> AIResponse | None:
         self.__prompt: str = message
         response: GenerateContentResponse | None = None
         post_text = ""
@@ -73,9 +75,9 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                     model="gemini-2.5-flash",
                     contents=self.__context_history,
                     config=GenerateContentConfig(
-                        temperature=0.90,
-                        top_p=0.95,
-                        top_k=1,
+                        temperature=temp,
+                        top_p=tp,
+                        top_k=tk,
                         # max_output_tokens=1024,
                         response_modalities=[Modality.TEXT],
                         tools=[self.__google_search_tool],

@@ -55,7 +55,7 @@ from models.LinkinModels import (
 
 class LinkedInExt:
     def __init__(self):
-        self.__access_token = os.getenv("ACCESS_TOKEN")
+        self.__access_token = os.getenv("TOKEN")
         self.__api_version: str | None = os.getenv("API_VERSION")
         self.__user_id: str | None = os.getenv("USER_ID")
 
@@ -99,9 +99,9 @@ class LinkedInExt:
         }
 
     def post_text(self, text: str, link_url: str | None = None):
-        print(text + "\n\n")
         self.__post_text = text
         self.__request_body_model.specificContent.ugcShareContent.shareCommentary.text = text
+        print(f"request header: {self.__header}")
         print(f"request body: {self.__request_body}")
 
         if link_url:

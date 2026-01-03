@@ -29,6 +29,8 @@ class Document:
     embedding: list[float]
     created_at: datetime
     modified_at: datetime
+    posted: bool = False
+    deleted: bool = False
 
 
 @dataclass

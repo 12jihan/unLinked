@@ -44,13 +44,13 @@ class BotController:
                         data.link = ""
 
                     self.memory.add(data)
-                    # linkedin.post_text(context)
+                    self.linkedin.post_text(data.text)
                 else:
                     self.__log_file("No Link Found")
                     self.__log_file("Posting Without Link")
                     data.link = ""
                     self.memory.add(data)
-                    # linkedin.post_text(context, link_url=link)
+                    self.linkedin.post_text(data.text, link_url=data.link)
 
         except RuntimeError as e:
             self.__log_file(f"Error: {e}")

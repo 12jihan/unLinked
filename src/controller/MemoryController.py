@@ -58,7 +58,9 @@ class MemoryController:
                 hashtags TEXT[] DEFAULT '{}',
                 embedding vector(768),
                 created_at TIMESTAMPTZ DEFAULT NOW(),
-                modified_at TIMESTAMPTZ DEFAULT NOW()
+                modified_at TIMESTAMPTZ DEFAULT NOW(),
+                posted BOOLEAN NOT NULL DEFAULT FALSE,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE
             )
             """)
             conn.commit()
@@ -68,14 +70,14 @@ class MemoryController:
         with self._connect() as conn:
             row = conn.execute(
                 """
-                INSERT INTO documents (text,link, hashtags, embedding)
+                INSERT INTO documents (text, link, hashtags, embedding)
                 VALUES (%s, %s, %s, %s)
-                RETURNING id, text, link, hashtags, embedding, created_at, modified_at
+                RETURNING id, text, link, hashtags, embedding, created_at, modified_at, posted, deleted
                 """,
                 (doc.text, doc.link, doc.hashtags, embedding),
             ).fetchone()
             conn.commit()
-            print(f"rows:\n{row}")
+            # print(f"rows:\n{row}")
 
             if row:
                 return Document(
@@ -86,6 +88,8 @@ class MemoryController:
                     created_at=row[4],
                     modified_at=row[5],
                     embedding=row[6],
+                    posted=row[7],
+                    deleted=row[7],
                 )
             return None
 
@@ -127,9 +131,9 @@ class MemoryController:
                 """,
                 (embedding, embedding, limit),
             ).fetchall()
-            if rows:
-                print(f"Columns per row: {len(rows[0])}")
-                print(f"First row: {rows[0]}")
+            # if rows:
+            #     print(f"Columns per row: {len(rows[0])}")
+            #     print(f"First row: {rows[0]}")
 
             return [
                 DocumentSearchResult(
@@ -173,12 +177,18 @@ class MemoryController:
         Returns True if unique enough
         Example: 0.85 == 85% similarity
         """
+
+        # print(text)
         logging.info(f"Threshold Set to: {threshold}")
         results = self.search(text, limit=1)
-        logging.info(f"Similarity Results Score: {results[0].similarity}")
-        print(f"Similarity Results Score: {results[0].similarity}")
+
         if not results:
             logging.info("No similarities found")
             return True
 
-        return results[0].similarity < threshold
+        logging.info(f"Similarity Results Score: {results[0].similarity}")
+        print(f"Similarity Results Score: {results[0].similarity}")
+
+        verdict: bool = results[0].similarity < threshold
+        print(f"Final verdict on if it passes similarity checks: {verdict}")
+        return verdict

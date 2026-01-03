@@ -25,7 +25,7 @@ def main():
     controller = BotController()
 
     while running and controller:
-        user_input = input("\n Enter a message: \n")
+        user_input = input("Press Enter to Start")
         if user_input == "##quit":
             running = False
 

@@ -1,8 +1,7 @@
-import typing_extensions as typing
+from pydantic import BaseModel
 
 
-class GeminiPost(typing.TypedDict):
-    Date: str | None
-    PostText: str
-    HashTags: list[str]
-    Link: str
+class GeminiPost(BaseModel):
+    text: str
+    hashtags: list[str]
+    link: str

@@ -1,4 +1,5 @@
 import os
+import logging
 import psycopg
 from psycopg.connection import Connection
 
@@ -119,13 +120,17 @@ class MemoryController:
         with self._connect() as conn:
             rows = conn.execute(
                 """
-                SELECT id, text, created_at, modified_at, 1 - (embedding <=> %s) AS similarity
+                SELECT id, text, link, hashtags, created_at, modified_at, 1 - (embedding <=> %s::vector) AS similarity
                 FROM documents 
-                ORDER BY embedding <=> %s 
+                ORDER BY embedding <=> %s::vector
                 LIMIT %s
                 """,
                 (embedding, embedding, limit),
             ).fetchall()
+            if rows:
+                print(f"Columns per row: {len(rows[0])}")
+                print(f"First row: {rows[0]}")
+
             return [
                 DocumentSearchResult(
                     id=r[0],
@@ -162,3 +167,18 @@ class MemoryController:
             result = conn.execute("DELETE FROM documents WHERE id = %s", (doc_id,))
             conn.commit()
             return result.rowcount > 0
+
+    def is_unique(self, text: str, threshold: float = 0.75) -> bool:
+        """
+        Returns True if unique enough
+        Example: 0.85 == 85% similarity
+        """
+        logging.info(f"Threshold Set to: {threshold}")
+        results = self.search(text, limit=1)
+        logging.info(f"Similarity Results Score: {results[0].similarity}")
+        print(f"Similarity Results Score: {results[0].similarity}")
+        if not results:
+            logging.info("No similarities found")
+            return True
+
+        return results[0].similarity < threshold

@@ -10,19 +10,12 @@ from google.genai.types import (
     Tool,
     GoogleSearch,
 )
-from psycopg import Error
 
 from models.DataModels import AIResponse
 from models.GeminiModels import GeminiPost
 
 
 class GeminiExt:
-    # One of the blocking formats
-    #
-    # [Source Link]
-    #
-    # 2.  **Impact:** Prioritize architectural shifts, security vulnerabilities (CVEs), or controversial open-source changes.
-
     instructions = """
 ### ROLE & OBJECTIVE
 You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse recent tech news and draft engaging, professional LinkedIn posts for a peer audience of developers.
@@ -34,7 +27,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
 ### CONTENT GUIDELINES
 1.  **Recency:** Focus on news from the last 5 months.
-2.  **Impact:** Prioritize architectural shifts, controversial open-source changes, break throughs in technology, challenging times in technology, or conversation about the software engineering community.
+2.  **Impact:** Prioritize architectural shifts, controversial changes, break throughs in technology, challenging times in technology, or conversation about the software engineering community.
 3.  **Value-Add:** Do not just summarize. Add engineering insight or pose a question about implementation, but not too many questions.
 4.  **Non-recurring:** Make sure that you do not do an article or linkedin post similar to one that you have already done.
 
@@ -59,7 +52,6 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
     """
 
     def __init__(self):
-        # GeminiAI Tokens
         self.__api_key: str | None = os.getenv("API_KEY")
         self.__client: Client = Client(api_key=self.__api_key)
         self.__google_search_tool = Tool(google_search=GoogleSearch())
@@ -68,13 +60,6 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         self.__current_context = ""
         self.__current_link = ""
         self.__prompt = ""
-
-        logging.basicConfig(
-            filename="logs/gemini_responses.log",
-            level=logging.INFO,
-            format="[%(levelname)s] %(asctime)s - %(message)s",  # This defines the structure
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
 
     def generate_content(self, message: str) -> AIResponse | None:
         self.__prompt: str = message
@@ -88,11 +73,15 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                     model="gemini-2.5-flash",
                     contents=self.__context_history,
                     config=GenerateContentConfig(
+                        temperature=0.90,
+                        top_p=0.95,
+                        top_k=40,
+                        max_output_tokens=1024,
                         response_modalities=[Modality.TEXT],
                         tools=[self.__google_search_tool],
+                        system_instruction=self.instructions,
                         # response_mime_type="application/json",
                         # response_schema=GeminiPost,
-                        system_instruction=self.instructions,
                     ),
                 )
                 print("Thinking ...")
@@ -130,12 +119,13 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
             if data:
                 print("AI Response Successfully Converted")
             else:
+                self.__log_file(f"Data is missing please check AI Response:\n{data}")
                 raise Exception(f"Data is missing please check AI Response:\n{data}")
 
             return data
 
         except Exception as e:
-            print(f"Errors: {e}")
+            self.__log_file(f"Error generating AI content: {e}")
             return None
 
     @property
@@ -185,9 +175,6 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
     def __log_file(self, text):
         logging.info(text)
-        # with open("logs/ai_responses.log", "w") as file:
-        #     file.write("date and time\n")
-        #     file.write("test\n")
 
     # # --- 3. Fix: Using SDK Types ---
     # # I renamed this to __build_content because it returns a Content object,

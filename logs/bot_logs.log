@@ -1227,3 +1227,54 @@ I'll choose the AMD Instinct MI300X as it represents a current breakthrough and 
 [INFO] 2026-01-03 17:10:23 - Threshold Set to: 0.65
 [INFO] 2026-01-03 17:10:23 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 200 OK"
 [INFO] 2026-01-03 17:10:23 - Similarity Results Score: 0.8788958834383717
+[INFO] 2026-01-04 15:59:15 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 15:59:15 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:09:11 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:09:11 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:13:38 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:13:38 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:16:00 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:16:00 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:19:45 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:19:45 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:20:31 - LinkedIn Ext. and Gemini Ext. Initialized...
+[INFO] 2026-01-04 16:20:31 - AFC is enabled with max remote calls: 10.
+[INFO] 2026-01-04 16:20:35 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:20:35 - {"text": "Nvidia's reported acquisition of Groq for $20 billion highlights a critical shift in AI inference architecture. Groq's Language Processing Unit (LPU), with its deterministic execution and SRAM-centric design, directly addresses the 'Memory Wall' bottleneck that GPUs and TPUs face in LLM inference. This isn't just about faster chips; it's a fundamental re-evaluation of hardware tailored for AI workloads, prioritizing predictable, low-latency token generation over general-purpose parallelism. The focus on static scheduling and simplified memory hierarchies to achieve this level of performance for real-time AI is a significant engineering feat. As AI becomes more integral to applications, how will this push for specialized, deterministic inference hardware influence our broader system design choices beyond just the AI component itself?", "hashtags": ["AIInference", "HardwareArchitecture", "LLMs", "SystemDesign", "TechBreakthrough"], "link": "https://medium.com/@GroqInc/groqs-deterministic-architecture-is-rewriting-the-physics-of-ai-inference-a3a8220ce660"}
+[INFO] 2026-01-04 16:20:35 - Threshold Set to: 0.65
+[INFO] 2026-01-04 16:20:36 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:20:36 - No similarities found
+[INFO] 2026-01-04 16:20:36 - Checking Link:
+[INFO] 2026-01-04 16:20:36 - Link Found:
+[INFO] 2026-01-04 16:20:36 - https://medium.com/@GroqInc/groqs-deterministic-architecture-is-rewriting-the-physics-of-ai-inference-a3a8220ce660
+[INFO] 2026-01-04 16:20:36 - Link Test Passed With --> True
+[INFO] 2026-01-04 16:20:36 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:31:52 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:31:52 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:32:45 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:32:45 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:32:49 - LinkedIn Ext. and Gemini Ext. Initialized...
+[INFO] 2026-01-04 16:32:49 - AFC is enabled with max remote calls: 10.
+[INFO] 2026-01-04 16:32:54 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:32:54 - {"text": "The reported acquisition of Groq by Nvidia, if it materializes as described, marks a significant architectural pivot in the AI landscape. Groq's Language Processing Unit (LPU) and its deterministic design directly address the latency bottleneck in LLM inference, moving beyond traditional GPU limitations. This shift towards an 'Inference Era' emphasizes efficient, real-time AI application rather than just model training. The integration of such specialized hardware for low-latency, high-throughput inference into a broader ecosystem like CUDA could profoundly impact how we architect and deploy AI-driven systems. It raises questions about the future of generalized compute for AI versus purpose-built silicon and the potential for a more consolidated hardware market.", "hashtags": ["AIInference", "HardwareArchitecture", "LLMs", "Nvidia", "Groq"], "link": "https://medium.com/@groq_ai/groqs-deterministic-architecture-is-rewriting-the-physics-of-ai-inference-85c1630113c2"}
+[INFO] 2026-01-04 16:32:54 - Threshold Set to: 0.65
+[INFO] 2026-01-04 16:32:54 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:32:54 - No similarities found
+[INFO] 2026-01-04 16:32:54 - Checking Link:
+[INFO] 2026-01-04 16:32:54 - Link Found:
+[INFO] 2026-01-04 16:32:54 - https://medium.com/@groq_ai/groqs-deterministic-architecture-is-rewriting-the-physics-of-ai-inference-85c1630113c2
+[INFO] 2026-01-04 16:32:54 - Link Test Passed With --> True
+[INFO] 2026-01-04 16:32:54 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:41:05 - LinkedIn Ext. and Gemini Ext. Initialized...
+[INFO] 2026-01-04 16:41:05 - AFC is enabled with max remote calls: 10.
+[INFO] 2026-01-04 16:41:12 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:41:12 - {"text": "The DeepSeek-V3 model is challenging the 'brute-force scaling' paradigm in AI, demonstrating that architectural ingenuity can significantly compensate for hardware constraints. Achieving performance parity with larger models at a fraction of the training cost ($5.6 million vs. $100M+), DeepSeek-V3, a 671-billion parameter Mixture-of-Experts (MoE) model, highlights an 'efficiency-first' approach. This shift could redefine how we approach LLM development and infrastructure investment. What implications does this have for smaller teams looking to innovate in the AI space, and how might it influence the architectural decisions for future foundational models?", "hashtags": ["AI", "LLMs", "SoftwareArchitecture", "DeepSeek", "TechBreakthrough"], "link": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGy7qyqUpcSNJLr6yGtVT0hp5InJIOWDJpoJCWAzRxYdL8po8XW6jZ8wYWyIjad5RVCxknfQaH0vtpSzbVz9KyRbxJlQIS2LJb6N3ByOKOIr7HFjfHcvOb7FsFo6qhn1Vj1VnMtuUUTAQUdQDS0lwYGI9GZr8f7vr8cBipTXU9TGAWo-NaSfOESLfO6zGaXv3goNKmlLi98thrPBZFKugrm_F1r3uTdk5PEa7gJP7TLbjjfYo49mfdDzLuhrgFcvGylrgsq2N4x6DukctU="}
+[INFO] 2026-01-04 16:41:12 - Threshold Set to: 0.65
+[INFO] 2026-01-04 16:41:12 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 200 OK"
+[INFO] 2026-01-04 16:41:12 - Similarity Results Score: 0.5527714877032051
+[INFO] 2026-01-04 16:41:12 - Checking Link:
+[INFO] 2026-01-04 16:41:12 - Link Found:
+[INFO] 2026-01-04 16:41:12 - https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGy7qyqUpcSNJLr6yGtVT0hp5InJIOWDJpoJCWAzRxYdL8po8XW6jZ8wYWyIjad5RVCxknfQaH0vtpSzbVz9KyRbxJlQIS2LJb6N3ByOKOIr7HFjfHcvOb7FsFo6qhn1Vj1VnMtuUUTAQUdQDS0lwYGI9GZr8f7vr8cBipTXU9TGAWo-NaSfOESLfO6zGaXv3goNKmlLi98thrPBZFKugrm_F1r3uTdk5PEa7gJP7TLbjjfYo49mfdDzLuhrgFcvGylrgsq2N4x6DukctU=
+[INFO] 2026-01-04 16:41:12 - Link Testing Failed With --> False
+[INFO] 2026-01-04 16:41:12 - Removing link and leaving blank
+[INFO] 2026-01-04 16:41:13 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 200 OK"

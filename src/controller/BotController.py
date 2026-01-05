@@ -13,6 +13,14 @@ class BotController:
         self.memory = MemoryController()
 
     def start(self):
+        # self.__generate()
+        test = self.gemini.find_article(
+            message="find an article based of my instructions"
+        )
+        print("value")
+        print(test)
+
+    def __generate(self):
         try:
             if self.linkedin and self.gemini and self.memory:
                 self.__log_file("LinkedIn Ext. and Gemini Ext. Initialized...")
@@ -21,7 +29,7 @@ class BotController:
 
             protocol: str = "Find an article and create a post"
             gem_data: AIResponse | None = self.gemini.generate_content(
-                message=protocol, temp=0.75, tp=0.95, tk=1.0
+                message=protocol, temperature=0.75, tp=0.95, tk=1.0
             )
 
             if gem_data:

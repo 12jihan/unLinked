@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import trafilatura
 from google.genai import Client
 
 from google.genai.types import (
@@ -16,6 +17,50 @@ from models.GeminiModels import GeminiPost
 
 
 class GeminiExt:
+    instruction_set_1 = """
+### ROLE & OBJECTIVE
+You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to use Google Search to find ONE (1) high-quality, recent article that would appeal to a technical audience of developers.
+
+### SEARCH CRITERIA
+1. **Recency:** Focus strictly on news from the last 5 months.
+2. **Topic Selection:** Prioritize architectural shifts, controversial changes, breakthroughs, or serious community discussions (e.g., open source sustainability, layout thrashing, memory safety).
+3. **Exclusions:** distinct from generic consumer tech news. Avoid simple "gadget reviews" or "app updates" unless they have engineering significance.
+
+### CRITICAL LINK RULES
+* **Verification:** You must verify that the link works and is not an internal redirect (like "google.com/url?" or "vertexaisearch").
+* **Source Quality:** Prefer primary sources (engineering blogs, official documentation releases) over generic news aggregators if possible.
+
+### OUTPUT FORMAT
+Return ONLY a stringified JSON object with the following structure. Do not output Markdown or code fencing.
+{
+    "title": "Title of the article",
+    "url": "Direct URL to the article",
+    "summary": "A 1-sentence summary of why this is technically interesting"
+}
+"""
+
+    instruction_set_2 = """
+### ROLE & OBJECTIVE
+You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to use Google Search to find ONE (1) high-quality, recent article that would appeal to a technical audience of developers.
+
+### SEARCH CRITERIA
+1. **Recency:** Focus strictly on news from the last 5 months.
+2. **Topic Selection:** Prioritize architectural shifts, controversial changes, breakthroughs, or serious community discussions (e.g., open source sustainability, layout thrashing, memory safety).
+3. **Exclusions:** distinct from generic consumer tech news. Avoid simple "gadget reviews" or "app updates" unless they have engineering significance.
+
+### CRITICAL LINK RULES
+* **Verification:** You must verify that the link works and is not an internal redirect (like "google.com/url?" or "vertexaisearch").
+* **Source Quality:** Prefer primary sources (engineering blogs, official documentation releases) over generic news aggregators if possible.
+
+### OUTPUT FORMAT
+Return ONLY a stringified JSON object with the following structure. Do not output Markdown or code fencing.
+{
+    "title": "Title of the article",
+    "url": "Direct URL to the article",
+    "summary": "A 1-sentence summary of why this is technically interesting"
+}
+"""
+
     instructions = """
 ### ROLE & OBJECTIVE
 You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse recent tech news and draft engaging, professional LinkedIn posts for a peer audience of developers.
@@ -61,8 +106,36 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         self.__current_link = ""
         self.__prompt = ""
 
+    def find_article(
+        self, message: str, temperature: float = 0.90, tp: float = 0.95, tk: float = 1.0
+    ) -> str | None:
+        response: GenerateContentResponse | None = None
+        stuff: str | None = None
+
+        print("Search ...")
+        response = self.__client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=message,
+            config=GenerateContentConfig(
+                temperature=temperature,
+                top_p=tp,
+                top_k=tk,
+                response_modalities=[Modality.TEXT],
+                tools=[self.__google_search_tool],
+                system_instruction=self.instruction_set_1,
+            ),
+        )
+
+        if response and response.candidates:
+            if response.text:
+                stuff = response.text.strip()
+                print("checking what comes back:")
+                print(stuff)
+
+        return None
+
     def generate_content(
-        self, message: str, temp: float = 0.90, tp: float = 0.95, tk: float = 1.0
+        self, message: str, temperature: float = 0.90, tp: float = 0.95, tk: float = 1.0
     ) -> AIResponse | None:
         self.__prompt: str = message
         response: GenerateContentResponse | None = None
@@ -71,11 +144,12 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         try:
             if len(self.prompt) > 0:
                 self.__context_history.append(self.__build_part("user", self.prompt))
+                print("Thinking ...")
                 response = self.__client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=self.__context_history,
                     config=GenerateContentConfig(
-                        temperature=temp,
+                        temperature=temperature,
                         top_p=tp,
                         top_k=tk,
                         # max_output_tokens=1024,
@@ -86,7 +160,6 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                         # response_schema=GeminiPost,
                     ),
                 )
-                print("Thinking ...")
 
             if response and response.candidates:
                 if response.text:
@@ -113,7 +186,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
             data: AIResponse | None = None
             if post_text:
-                temp = json.loads(post_text)
+                temp: dict = json.loads(post_text)
                 if temp["text"]:
                     data = AIResponse(
                         text=temp["text"], link=temp["link"], hashtags=temp["hashtags"]
@@ -168,6 +241,13 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
     @property
     def context_history(self):
         return self.__context_history
+
+    def __process_link_content(self, link: str):
+        print("processing the link:")
+        print(link)
+        downloaded = trafilatura.fetch_url(link)
+        text = trafilatura.extract(downloaded)
+        print(text)
 
     def __build_part(self, role: str, message: str):
         # Need to figure out how to make parts using Part from google's genai

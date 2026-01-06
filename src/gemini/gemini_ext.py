@@ -129,8 +129,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         if response and response.candidates:
             if response.text:
                 stuff = response.text.strip()
-                print("checking what comes back:")
-                print(stuff)
+                return stuff
 
         return None
 

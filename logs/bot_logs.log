@@ -1278,3 +1278,25 @@ I'll choose the AMD Instinct MI300X as it represents a current breakthrough and 
 [INFO] 2026-01-04 16:41:12 - Link Testing Failed With --> False
 [INFO] 2026-01-04 16:41:12 - Removing link and leaving blank
 [INFO] 2026-01-04 16:41:13 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:15:51 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:15:51 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:16:43 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:16:43 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:35:01 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:35:01 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:38:55 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:38:55 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:38:58 - AFC is enabled with max remote calls: 10.
+[INFO] 2026-01-05 16:39:10 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:39:42 - AFC is enabled with max remote calls: 10.
+[INFO] 2026-01-05 16:40:22 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:57:38 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 16:57:38 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 17:15:54 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 17:15:55 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 17:15:58 - AFC is enabled with max remote calls: 10.
+[INFO] 2026-01-05 17:16:11 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 17:17:08 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 17:17:09 - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3 "HTTP/1.1 200 OK"
+[INFO] 2026-01-05 17:17:10 - AFC is enabled with max remote calls: 10.
+[INFO] 2026-01-05 17:17:17 - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"

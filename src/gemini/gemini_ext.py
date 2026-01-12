@@ -131,6 +131,8 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         if response and response.candidates:
             if response.text:
                 raw_data = response.text.strip()
+                print(f"This is the raw_data:\n {raw_data}")
+
                 try:
                     parsed = json.loads(raw_data)
                     structured = ModelPrep(
@@ -142,9 +144,8 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                     print(f"Data structured:\n {structured}")
                     return structured
 
-                except Exception as e:
-                    print(f"Error:\n {e}")
-
+                except RuntimeError as e:
+                    print(f"Runtime error:\n {e}")
                     return None
 
         return None

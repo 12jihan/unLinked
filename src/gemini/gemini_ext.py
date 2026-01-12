@@ -114,7 +114,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         response: GenerateContentResponse | None = None
         raw_data: str | None = None
 
-        print("Search ...")
+        print("Searching now ...")
         response = self.__client.models.generate_content(
             model="gemini-2.5-flash",
             contents=message,
@@ -139,7 +139,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                         summary=parsed["summary"],
                     )
 
-                    print(f"Data test:\n{structured}")
+                    print(f"Data structured:\n {structured}")
                     return structured
 
                 except Exception as e:
@@ -150,9 +150,8 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         return None
 
     def strip_article(self, article: ModelPrep) -> ModelCook | None:
-        print(f"article as a whole:\n {article}")
-        if not article:
-            return None
+        _article: ModelPrep = article
+        print(f"article as a whole:\n {_article}")
 
         try:
             _url = article.link
@@ -163,26 +162,26 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
             downloaded = trafilatura.fetch_url(_url)
             if not downloaded:
-                print(f"URL INVALID: {_url}")
+                print(f"URL Invalid: {_url}")
                 return
 
-            text = trafilatura.extract(downloaded, include_comments=False)
-            if not text:
+            extracted_text = trafilatura.extract(downloaded, include_comments=False)
+            if not extracted_text:
                 print("Could not extract text")
                 return
 
             data = ModelCook(
                 title=article.title,
-                link=article["url"],
-                summary=article["summary"],
-                text=text,
+                link=article.link,
+                summary=article.summary,
+                text=extracted_text,
             )
-            print(f"Data:\n {data}")
+            print(f"Info to use in cooking...:\n {data}")
 
             return data
 
         except RuntimeError as e:
-            print(f"Error:\t- {e}")
+            print(f"Error stripping the article:\t- {e}")
             return
 
     def generate_content(

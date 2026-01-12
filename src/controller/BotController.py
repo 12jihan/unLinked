@@ -14,13 +14,19 @@ class BotController:
 
     def start(self):
         # self.__generate()
+        print("Finding an article to use...")
+
         article = self.gemini.find_article(message="find an article")
         if article is None:
             print("Problem finding an article... Try again...")
             return
+        print(f"Article succesfully found!:\n {article}")
 
-        print("Article created succesfully")
-        article_obj = self.gemini.strip_article(article)
+        article_stripped = self.gemini.strip_article(article)
+        if article_stripped is None:
+            print("Problem stripping the article... Try again...")
+            return
+        print(f"Article succesfully stripped!:\n {article_stripped}")
 
     def __generate(self):
         try:

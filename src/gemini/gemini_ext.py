@@ -7,6 +7,7 @@ from google.genai import Client
 from google.genai.types import (
     GenerateContentConfig,
     GenerateContentResponse,
+    GoogleSearchRetrieval,
     Modality,
     Tool,
     GoogleSearch,
@@ -17,13 +18,14 @@ from models.GeminiModels import GeminiPost, ModelCook, ModelPrep
 
 
 class GeminiExt:
+    # (e.g., open source sustainability, layout thrashing, memory safety)
     instruction_set_1 = """
 ### ROLE & OBJECTIVE
 You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to use Google Search to find ONE (1) high-quality, recent article that would appeal to a technical audience of developers. Please be sure that the article you find is a reputable source that is well known. Do not use obscure blogs or websites.
 
 ### SEARCH CRITERIA
 1. **Recency:** Focus strictly on news from the last 5 months.
-2. **Topic Selection:** Prioritize architectural shifts, controversial changes, breakthroughs, or serious community discussions (e.g., open source sustainability, layout thrashing, memory safety).
+2. **Topic Selection:** Prioritize architectural shifts, controversial changes, breakthroughs, or tech serious community discussions .
 3. **Exclusions:** distinct from generic consumer tech news. Avoid simple "gadget reviews" or "app updates" unless they have engineering significance.
 
 ### CRITICAL LINK RULES
@@ -42,61 +44,7 @@ Do not output Markdown and do not do "code fencing".
 """
 
     instruction_set_2 = """
-### ROLE & OBJECTIVE
-You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to use Google Search to find ONE (1) high-quality, recent article that would appeal to a technical audience of developers.
-
-### SEARCH CRITERIA
-1. **Recency:** Focus strictly on news from the last 5 months.
-2. **Topic Selection:** Prioritize architectural shifts, controversial changes, breakthroughs, or serious community discussions (e.g., open source sustainability, layout thrashing, memory safety).
-3. **Exclusions:** distinct from generic consumer tech news. Avoid simple "gadget reviews" or "app updates" unless they have engineering significance.
-
-### CRITICAL LINK RULES
-* **Verification:** You must verify that the link works and is not an internal redirect (like "google.com/url?" or "vertexaisearch").
-* **Source Quality:** Prefer primary sources (engineering blogs, official documentation releases) over generic news aggregators if possible.
-
-### OUTPUT FORMAT
-Return ONLY a stringified JSON object with the following structure. Do not output Markdown or code fencing.
-{
-    "title": "Title of the article",
-    "url": "Direct URL to the article",
-    "summary": "A 1-sentence summary of why this is technically interesting"
-}
 """
-
-    instructions = """
-### ROLE & OBJECTIVE
-You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse recent tech news and draft engaging, professional LinkedIn posts for a peer audience of developers.
-
-### TONE & PERSONA
-* **Pragmatic & Grounded:** Speak with engineering authority. Be analytical, objective, and slightly skeptical of hype.
-* **Zero Fluff:** Strictly avoid "salesy" language. No "Thrilled to announce," "Game changer," or "Revolutionary."
-* **Direct:** Get straight to the technical insight.
-
-### CONTENT GUIDELINES
-1.  **Recency:** Focus on news from the last 5 months.
-2.  **Impact:** Prioritize architectural shifts, controversial changes, break throughs in technology, challenging times in technology, or conversation about the software engineering community.
-3.  **Value-Add:** Do not just summarize. Add engineering insight or pose a question about implementation, but not too many questions.
-4.  **Non-recurring:** Make sure that you do not do an article or linkedin post similar to one that you have already done.
-
-### QUANTITY & OUTPUT
-* **Single Output:** You must generate exactly ONE (1) post. Do not provide variations, options, or multiple drafts.
-* **Final Polish:** The output must be ready to copy-paste. Do not include conversational filler like "Here is a post for you."
-
-### FORMATTING RULES
-* **Format:** Plain text only. No Markdown (no bold/italics).
-* **Emojis:** Max 1 emoji. Ideally 0.
-* **Structure:**
-    return stringified json without Markdown formatting, and NO code fencing backticks.
-   json structure example:
-    - {"text": String, "hashtags": Array[String], "link": string}
-* **Conditions:** Make sure that if you are using quotation marks in the summary that you use singles and not the doubles, specifically for text processing.
-
-### CRITICAL LINK RULES
-* **No Hallucinations:** You must ONLY provide links that were explicitly returned by the Google Search tool.
-* **Verification:** Do not guess URLs based on headlines. If the search tool does not provide a direct, valid URL, do not include a link at all.
-* **Clean Links:** Do not use "google.com/url?...", "https://vertexaisearch.cloud.google.com/", redirects or internal tracking IDs. Output the direct article URL.
-* **Proper Format:** Do not use more than 1 URL. Ideally we want only 1 link for each post.
-    """
 
     def __init__(self):
         self.__api_key: str | None = os.getenv("API_KEY")
@@ -109,13 +57,17 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
         self.__prompt = ""
 
     def find_article(
-        self, message: str, temperature: float = 0.90, tp: float = 0.95, tk: float = 1.0
+        self,
+        message: str,
+        temperature: float = 0.10,
+        tp: float = 0.10,
+        tk: float = 1.0,
     ) -> ModelPrep | None:
-        response: GenerateContentResponse | None = None
-        raw_data: str | None = None
+        _response: GenerateContentResponse | None = None
+        _raw_data: str | None = None
+        _grounding_tools: list[Tool] = [Tool(google_search=GoogleSearch())]
 
-        print("Searching now ...")
-        response = self.__client.models.generate_content(
+        _response = self.__client.models.generate_content(
             model="gemini-2.5-flash",
             contents=message,
             config=GenerateContentConfig(
@@ -123,94 +75,100 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                 top_p=tp,
                 top_k=tk,
                 response_modalities=[Modality.TEXT],
-                tools=[self.__google_search_tool],
+                tools=_grounding_tools,
                 system_instruction=self.instruction_set_1,
             ),
         )
 
-        if response and response.candidates:
-            if response.text:
-                raw_data = response.text.strip()
-                print(f"This is the raw_data:\n {raw_data}")
+        if _response and _response.candidates:
+            print("there is a resonse!")
+
+            _grounding_info = _response.candidates[0].grounding_metadata
+            if _grounding_info and _grounding_info.grounding_chunks:
+                print("grounding_chunks")
+                first_chunk = _grounding_info.grounding_chunks[0]
+                print(f"\n\n\ngrounding_chunks:\n{first_chunk}\n\n\n")
+
+            if _response.text:
+                _raw_data = _response.text.strip()
 
                 try:
-                    parsed = json.loads(raw_data)
-                    structured = ModelPrep(
-                        title=parsed["title"],
-                        link=parsed["link"],
-                        summary=parsed["summary"],
+                    _parsed = json.loads(_raw_data)
+                    _structured = ModelPrep(
+                        title=_parsed["title"],
+                        link=_parsed["url"],
+                        summary=_parsed["summary"],
                     )
 
-                    print(f"Data structured:\n {structured}")
-                    return structured
+                    return _structured
 
-                except RuntimeError as e:
-                    print(f"Runtime error:\n {e}")
+                except Exception as e:
+                    print(f"Error finding an article:\n {e}")
                     return None
 
         return None
 
     def strip_article(self, article: ModelPrep) -> ModelCook | None:
         _article: ModelPrep = article
-        print(f"article as a whole:\n {_article}")
 
         try:
-            _url = article.link
+            _url = _article.link
             if not _url:
                 print("Need URL to Continue")
                 return
-            print("Url Found")
+            print("Url Found!")
 
-            downloaded = trafilatura.fetch_url(_url)
-            if not downloaded:
-                print(f"URL Invalid: {_url}")
+            _downloaded = trafilatura.fetch_url(_url)
+            if not _downloaded:
+                print(f"Url Invalid: {_url}")
                 return
 
-            extracted_text = trafilatura.extract(downloaded, include_comments=False)
-            if not extracted_text:
+            _extracted_text = trafilatura.extract(_downloaded, include_comments=False)
+            if not _extracted_text:
                 print("Could not extract text")
                 return
 
-            data = ModelCook(
-                title=article.title,
-                link=article.link,
-                summary=article.summary,
-                text=extracted_text,
+            _structured_data = ModelCook(
+                title=_article.title,
+                link=_article.link,
+                summary=_article.summary,
+                text=_extracted_text,
             )
-            print(f"Info to use in cooking...:\n {data}")
+            # print(f"Info to use in cooking...:\n {_structured_data} \n")
 
-            return data
+            return _structured_data
 
-        except RuntimeError as e:
-            print(f"Error stripping the article:\t- {e}")
+        except Exception as e:
+            print(f"Error stripping the article:\t {e}")
             return
 
     def generate_content(
-        self, message: str, temperature: float = 0.90, tp: float = 0.95, tk: float = 1.0
+        self,
+        json_string: str,
+        temperature: float = 0.90,
+        tp: float = 0.95,
+        tk: float = 1.0,
     ) -> AIResponse | None:
-        self.__prompt: str = message
+        self.__prompt: str = json_string
         response: GenerateContentResponse | None = None
-        post_text = ""
+        post_text: str = ""
 
         try:
-            if len(self.prompt) > 0:
-                self.__context_history.append(self.__build_part("user", self.prompt))
-                print("Thinking ...")
-                response = self.__client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=self.__context_history,
-                    config=GenerateContentConfig(
-                        temperature=temperature,
-                        top_p=tp,
-                        top_k=tk,
-                        # max_output_tokens=1024,
-                        response_modalities=[Modality.TEXT],
-                        tools=[self.__google_search_tool],
-                        system_instruction=self.instructions,
-                        # response_mime_type="application/json",
-                        # response_schema=GeminiPost,
-                    ),
-                )
+            response = self.__client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=self.__context_history,
+                config=GenerateContentConfig(
+                    temperature=temperature,
+                    top_p=tp,
+                    top_k=tk,
+                    response_modalities=[Modality.TEXT],
+                    system_instruction=self.instruction_set_2,
+                    # max_output_tokens=1024,
+                    # tools=[self.__google_search_tool],
+                    # response_mime_type="application/json",
+                    # response_schema=GeminiPost,
+                ),
+            )
 
             if response and response.candidates:
                 if response.text:
@@ -219,23 +177,13 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
                     # self.__context_history.append(
                     #     self.__build_part("model", response.text)
                     # )
-
-                self.__current_link = ""
-                candidate = response.candidates[0]
-                if (
-                    candidate.grounding_metadata
-                    and candidate.grounding_metadata.grounding_chunks
-                ):
-                    for chunk in candidate.grounding_metadata.grounding_chunks:
-                        if chunk.web and chunk.web.uri:
-                            self.__current_link = chunk.web.uri
-                            break
-
                 final_output = f"{post_text}"
+
                 self.__current_context = final_output
                 self.__log_file(final_output)
 
             data: AIResponse | None = None
+
             if post_text:
                 temp: dict = json.loads(post_text)
                 if temp["text"]:
@@ -252,7 +200,7 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
         except Exception as e:
             self.__log_file(f"Error generating AI content: {e}")
-            return None
+            return
 
     @property
     def current_link(self):

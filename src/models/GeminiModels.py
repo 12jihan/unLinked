@@ -25,3 +25,10 @@ class ModelServe(BaseModel):
     link: str
     summary: str
     text: str
+
+
+class ModelDigest(BaseModel):
+    title: str
+    link: str
+    hashtags: list[str]
+    text: str

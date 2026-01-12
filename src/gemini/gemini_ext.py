@@ -13,13 +13,13 @@ from google.genai.types import (
 )
 
 from models.DataModels import AIResponse
-from models.GeminiModels import GeminiPost
+from models.GeminiModels import GeminiPost, ModelCook, ModelPrep
 
 
 class GeminiExt:
     instruction_set_1 = """
 ### ROLE & OBJECTIVE
-You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to use Google Search to find ONE (1) high-quality, recent article that would appeal to a technical audience of developers.
+You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to use Google Search to find ONE (1) high-quality, recent article that would appeal to a technical audience of developers. Please be sure that the article you find is a reputable source that is well known. Do not use obscure blogs or websites.
 
 ### SEARCH CRITERIA
 1. **Recency:** Focus strictly on news from the last 5 months.
@@ -31,12 +31,14 @@ You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to u
 * **Source Quality:** Prefer primary sources (engineering blogs, official documentation releases) over generic news aggregators if possible.
 
 ### OUTPUT FORMAT
-Return ONLY a stringified JSON object with the following structure. Do not output Markdown or code fencing.
+Return ONLY a stringified JSON object with the following structure:
 {
     "title": "Title of the article",
     "url": "Direct URL to the article",
     "summary": "A 1-sentence summary of why this is technically interesting"
 }
+
+Do not output Markdown and do not do "code fencing".
 """
 
     instruction_set_2 = """
@@ -108,9 +110,9 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
     def find_article(
         self, message: str, temperature: float = 0.90, tp: float = 0.95, tk: float = 1.0
-    ) -> str | None:
+    ) -> ModelPrep | None:
         response: GenerateContentResponse | None = None
-        stuff: str | None = None
+        raw_data: str | None = None
 
         print("Search ...")
         response = self.__client.models.generate_content(
@@ -128,10 +130,60 @@ You are a Senior Software Engineer and Tech Enthusiast. Your goal is to browse r
 
         if response and response.candidates:
             if response.text:
-                stuff = response.text.strip()
-                return stuff
+                raw_data = response.text.strip()
+                try:
+                    parsed = json.loads(raw_data)
+                    structured = ModelPrep(
+                        title=parsed["title"],
+                        link=parsed["link"],
+                        summary=parsed["summary"],
+                    )
+
+                    print(f"Data test:\n{structured}")
+                    return structured
+
+                except Exception as e:
+                    print(f"Error:\n {e}")
+
+                    return None
 
         return None
+
+    def strip_article(self, article: ModelPrep) -> ModelCook | None:
+        print(f"article as a whole:\n {article}")
+        if not article:
+            return None
+
+        try:
+            _url = article.link
+            if not _url:
+                print("Need URL to Continue")
+                return
+            print("Url Found")
+
+            downloaded = trafilatura.fetch_url(_url)
+            if not downloaded:
+                print(f"URL INVALID: {_url}")
+                return
+
+            text = trafilatura.extract(downloaded, include_comments=False)
+            if not text:
+                print("Could not extract text")
+                return
+
+            data = ModelCook(
+                title=article.title,
+                link=article["url"],
+                summary=article["summary"],
+                text=text,
+            )
+            print(f"Data:\n {data}")
+
+            return data
+
+        except RuntimeError as e:
+            print(f"Error:\t- {e}")
+            return
 
     def generate_content(
         self, message: str, temperature: float = 0.90, tp: float = 0.95, tk: float = 1.0

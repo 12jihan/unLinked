@@ -5,10 +5,12 @@ import trafilatura
 from google.genai import Client
 
 from google.genai.types import (
+    Candidate,
     GenerateContentConfig,
     GenerateContentResponse,
     GoogleSearchRetrieval,
     GroundingChunk,
+    GroundingMetadata,
     Modality,
     Tool,
     GoogleSearch,
@@ -64,11 +66,8 @@ Do not output Markdown and do not do "code fencing".
         tp: float = 0.10,
         tk: float = 1.0,
     ) -> ModelPrep | None:
-        _response: GenerateContentResponse | None = None
-        _raw_data: str | None = None
         _grounding_tools: list[Tool] = [Tool(google_search=GoogleSearch())]
-
-        _response = self.__client.models.generate_content(
+        _resp: GenerateContentResponse = self.__client.models.generate_content(
             model="gemini-2.5-flash",
             contents=message,
             config=GenerateContentConfig(
@@ -81,32 +80,28 @@ Do not output Markdown and do not do "code fencing".
             ),
         )
 
-        if _response and _response.candidates:
-            print("there is a resonse!")
+        if not _resp.candidates:
+            print("No Response from Gemini Client...")
+            return
+        _candidate: Candidate = _resp.candidates[0]
+        print(_candidate)
 
-            _grounding_info = _response.candidates[0].grounding_metadata
-            _first_chunk: GroundingChunk | None = None
-            if _grounding_info and _grounding_info.grounding_chunks:
-                print("grounding_chunks")
-                print(f"\n\n\ngrounding_chunks:\n{_first_chunk}\n\n\n")
-                _first_chunk = _grounding_info.grounding_chunks[0]
-
-            if _response.text:
-                _raw_data = _response.text.strip()
-
-                try:
-                    _parsed = json.loads(_raw_data)
-                    _structured = ModelPrep(
-                        title=_parsed["title"],
-                        link=f"{_first_chunk}",
-                        summary=_parsed["summary"],
-                    )
-
-                    return _structured
-
-                except Exception as e:
-                    print(f"Error while finding an article:\n {e}")
-                    return None
+        # if _response and _response.candidates:
+        #     if _response.text:
+        #         _raw_data = _response.text.strip()
+        #
+        #         try:
+        #             _parsed = json.loads(_raw_data)
+        #             _structured = ModelPrep(
+        #                 title=_parsed["title"],
+        #                 link="",
+        #                 summary=_parsed["summary"],
+        #             )
+        #             return _structured
+        #
+        #         except Exception as e:
+        #             print(f"Error while finding an article:\n {e}")
+        #             return
 
         return None
 
@@ -136,7 +131,6 @@ Do not output Markdown and do not do "code fencing".
                 summary=_article.summary,
                 text=_extracted_text,
             )
-
             return _structured_data
 
         except Exception as e:

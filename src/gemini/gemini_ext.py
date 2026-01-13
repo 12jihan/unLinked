@@ -8,6 +8,7 @@ from google.genai.types import (
     GenerateContentConfig,
     GenerateContentResponse,
     GoogleSearchRetrieval,
+    GroundingChunk,
     Modality,
     Tool,
     GoogleSearch,
@@ -84,10 +85,11 @@ Do not output Markdown and do not do "code fencing".
             print("there is a resonse!")
 
             _grounding_info = _response.candidates[0].grounding_metadata
+            _first_chunk: GroundingChunk | None = None
             if _grounding_info and _grounding_info.grounding_chunks:
                 print("grounding_chunks")
-                first_chunk = _grounding_info.grounding_chunks[0]
-                print(f"\n\n\ngrounding_chunks:\n{first_chunk}\n\n\n")
+                print(f"\n\n\ngrounding_chunks:\n{_first_chunk}\n\n\n")
+                _first_chunk = _grounding_info.grounding_chunks[0]
 
             if _response.text:
                 _raw_data = _response.text.strip()
@@ -96,14 +98,14 @@ Do not output Markdown and do not do "code fencing".
                     _parsed = json.loads(_raw_data)
                     _structured = ModelPrep(
                         title=_parsed["title"],
-                        link=_parsed["url"],
+                        link=f"{_first_chunk}",
                         summary=_parsed["summary"],
                     )
 
                     return _structured
 
                 except Exception as e:
-                    print(f"Error finding an article:\n {e}")
+                    print(f"Error while finding an article:\n {e}")
                     return None
 
         return None
@@ -134,7 +136,6 @@ Do not output Markdown and do not do "code fencing".
                 summary=_article.summary,
                 text=_extracted_text,
             )
-            # print(f"Info to use in cooking...:\n {_structured_data} \n")
 
             return _structured_data
 

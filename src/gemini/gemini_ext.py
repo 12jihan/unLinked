@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from typing import Any, cast
 import trafilatura
 from google.genai import Client
 
@@ -39,7 +40,7 @@ You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to u
 Return ONLY a stringified JSON object with the following structure:
 {
     "title": "Title of the article",
-    "url": "Direct URL to the article",
+    "link": "Direct URL to the article",
     "summary": "A 1-sentence summary of why this is technically interesting"
 }
 
@@ -80,11 +81,24 @@ Do not output Markdown and do not do "code fencing".
             ),
         )
 
-        if not _resp.candidates:
-            print("No Response from Gemini Client...")
+        if _resp.candidates is None:
+            print("\n\n")
+            print("No candidates found in response...")
+            print("\n\n")
             return
-        _candidate: Candidate = _resp.candidates[0]
-        print(_candidate)
+        _candidate: Candidate | None = _resp.candidates[0]
+        print("found:")
+        print("\n\n")
+        print(_candidate.to_json_dict().keys())
+        print("\n\n")
+
+        if _candidate.content is None:
+            print("\n\n")
+            print("No content available...")
+            print("\n\n")
+            return
+        print("Keys of Content:")
+        print(_candidate.content.to_json_dict().keys())
 
         # if _response and _response.candidates:
         #     if _response.text:
@@ -136,6 +150,9 @@ Do not output Markdown and do not do "code fencing".
         except Exception as e:
             print(f"Error stripping the article:\t {e}")
             return
+
+    def recover_uri(self, test):
+        pass
 
     def generate_content(
         self,

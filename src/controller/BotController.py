@@ -22,21 +22,25 @@ class BotController:
             return
 
     def start(self):
-        print("Finding an article to use...")
-        _message: str = "Using google search find an article that follows the guildlines of the provided instruction"
+        # initialize the search for an article to use.
+        _message: str = "Using google search find an article that follows the guildlines of the provided instructions"
         _article = self.gemini.find_article(message=_message)
+        print("Finding an article to use...")
+
+        # check if article was found
         if _article is None:
             print("Problem finding an article... Try again...")
             return
         print(f"Article succesfully found!:\n {_article}")
 
+        # check if stripping worked
         _article_stripped = self.gemini.strip_article(_article)
         if _article_stripped is None:
             print("Problem stripping the article... Try again...")
             return
-        # print(f"Article succesfully stripped!:\n {_article_stripped}")
         print("Article succesfully stripped!")
 
+        # generate content from the data created
         print("Creating post from article data")
         self.__generate(_article_stripped)
 

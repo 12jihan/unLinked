@@ -1,4 +1,5 @@
 import json
+import requests
 import logging
 import os
 from typing import Any, cast
@@ -68,56 +69,69 @@ Do not output Markdown and do not do "code fencing".
         tk: float = 1.0,
     ) -> ModelPrep | None:
         _grounding_tools: list[Tool] = [Tool(google_search=GoogleSearch())]
-        _resp: GenerateContentResponse = self.__client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=message,
-            config=GenerateContentConfig(
-                temperature=temperature,
-                top_p=tp,
-                top_k=tk,
-                response_modalities=[Modality.TEXT],
-                tools=_grounding_tools,
-                system_instruction=self.instruction_set_1,
-            ),
-        )
+        try:
+            _resp: GenerateContentResponse = self.__client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=message,
+                config=GenerateContentConfig(
+                    temperature=temperature,
+                    top_p=tp,
+                    top_k=tk,
+                    response_modalities=[Modality.TEXT],
+                    tools=_grounding_tools,
+                    system_instruction=self.instruction_set_1,
+                ),
+            )
+            print("\n")
 
-        if _resp.candidates is None:
-            print("\n\n")
-            print("No candidates found in response...")
-            print("\n\n")
+            if _resp.candidates is None:
+                print("No candidates found in response...")
+                print("---")
+                return
+            _candidate: Candidate | None = _resp.candidates[0]
+            print("found candidate:")
+            print(_candidate.to_json_dict().keys())
+            print("---")
+
+            if _candidate.grounding_metadata is None:
+                print("No content available...")
+                print("---")
+                return
+            _g_data: GroundingMetadata = _candidate.grounding_metadata
+            print("Keys of Grounding Metadata:")
+            print(_g_data.to_json_dict().keys())
+            print("---")
+
+            if _g_data.grounding_chunks is None:
+                print("Could not find grounding chunks...")
+                return
+            _chunks: list[GroundingChunk] = _g_data.grounding_chunks
+            print("Keys of grounding_chunks:")
+            print(_g_data.grounding_chunks[0].to_json_dict().keys())
+            print("\n")
+
+            if _resp.text is None:
+                return
+            _raw_data: str = _resp.text.strip()
+            _parsed = json.loads(_raw_data)
+            _structured = ModelPrep(
+                title=_parsed["title"], link=_parsed["link"], summary=_parsed["summary"]
+            )
+            print("structured data:")
+            print(_structured)
+            print("---")
+            print("Testing link...")
+
+            if self.link_test(_structured.link) is False:
+                return
+
             return
-        _candidate: Candidate | None = _resp.candidates[0]
-        print("found:")
-        print("\n\n")
-        print(_candidate.to_json_dict().keys())
-        print("\n\n")
+            # return _structured
+            # return
 
-        if _candidate.content is None:
-            print("\n\n")
-            print("No content available...")
-            print("\n\n")
-            return
-        print("Keys of Content:")
-        print(_candidate.content.to_json_dict().keys())
-
-        # if _response and _response.candidates:
-        #     if _response.text:
-        #         _raw_data = _response.text.strip()
-        #
-        #         try:
-        #             _parsed = json.loads(_raw_data)
-        #             _structured = ModelPrep(
-        #                 title=_parsed["title"],
-        #                 link="",
-        #                 summary=_parsed["summary"],
-        #             )
-        #             return _structured
-        #
-        #         except Exception as e:
-        #             print(f"Error while finding an article:\n {e}")
-        #             return
-
-        return None
+        except Exception as e:
+            print(f"There was an error with Gemini GenAI Client:\n{e}")
+            return None
 
     def strip_article(self, article: ModelPrep) -> ModelCook | None:
         _article: ModelPrep = article
@@ -154,6 +168,39 @@ Do not output Markdown and do not do "code fencing".
     def recover_uri(self, test):
         pass
 
+    def link_test(self, link: str) -> bool:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        }
+
+        if len(link) <= 0:
+            print("No proper link was passed...")
+            return False
+
+        try:
+            response = requests.head(
+                link, timeout=10, allow_redirects=True, headers=headers
+            )
+
+            if response.status_code == 200:
+                print("Link test passed...")
+                return True
+
+            # Retrying with get method if it fails
+            print("Link test failed...")
+            if response.status_code in (405, 404, 403):
+                print("Trying again with get request")
+                response = requests.get(
+                    link, timeout=10, allow_redirects=True, headers=headers
+                )
+                return response.status_code == 200
+
+            return False
+        except requests.RequestException as e:
+            print("There was a problem trying to test the link...")
+            print(e)
+            return False
+
     def generate_content(
         self,
         json_string: str,
@@ -175,10 +222,6 @@ Do not output Markdown and do not do "code fencing".
                     top_k=tk,
                     response_modalities=[Modality.TEXT],
                     system_instruction=self.instruction_set_2,
-                    # max_output_tokens=1024,
-                    # tools=[self.__google_search_tool],
-                    # response_mime_type="application/json",
-                    # response_schema=GeminiPost,
                 ),
             )
 

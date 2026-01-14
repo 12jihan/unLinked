@@ -24,8 +24,8 @@ class BotController:
     def start(self):
         # initialize the search for an article to use.
         _message: str = "Using google search find an article that follows the guildlines of the provided instructions"
-        _article = self.gemini.find_article(message=_message)
         print("Finding an article to use...")
+        _article = self.gemini.find_article(message=_message)
 
         # check if article was found
         if _article is None:

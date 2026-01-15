@@ -2,7 +2,6 @@ import json
 import requests
 import logging
 import os
-from typing import Any, cast
 import trafilatura
 from google.genai import Client
 
@@ -10,20 +9,16 @@ from google.genai.types import (
     Candidate,
     GenerateContentConfig,
     GenerateContentResponse,
-    GoogleSearchRetrieval,
-    GroundingChunk,
-    GroundingMetadata,
     Modality,
     Tool,
     GoogleSearch,
 )
 
 from models.DataModels import AIResponse
-from models.GeminiModels import GeminiPost, ModelCook, ModelPrep
+from models.GeminiModels import ModelCook, ModelPrep
 
 
 class GeminiExt:
-    # (e.g., open source sustainability, layout thrashing, memory safety)
     instruction_set_1 = """
 ### ROLE & OBJECTIVE
 You are a Tech News Scout for a Senior Software Engineer. Your sole goal is to use Google Search to find ONE (1) high-quality, recent article that would appeal to a technical audience of developers. Please be sure that the article you find is a reputable source that is well known. Do not use obscure blogs or websites.
@@ -49,6 +44,37 @@ Do not output Markdown and do not do "code fencing".
 """
 
     instruction_set_2 = """
+### ROLE & OBJECTIVE
+You are a Senior Software Engineer acting as a LinkedIn ghostwriter. 
+Your ONLY task is to take the provided article data and rewrite it into a single, high-impact LinkedIn post for a technical audience.
+
+### INPUT DATA
+You will be provided with a JSON object containing:
+1. "title": The headline of the article.
+2. "summary": A brief technical summary.
+3. "link": The verified URL.
+
+### TONE & PERSONA
+* **Pragmatic & Grounded:** Speak with engineering authority. Be analytical, objective, and slightly skeptical of hype.
+* **Zero Fluff:** Strictly avoid "salesy" language. No "Thrilled to announce," "Game changer," or "Revolutionary."
+* **Direct:** Get straight to the technical insight. "Here is why this matters to your backend..."
+
+### WRITING RULES
+1. **Synthesis:** Do not just copy the summary. Add an engineering "hot take" or perspective based on the input.
+2. **Length:** Keep it concise (under 150 words).
+3. **Formatting:** Use plain text. No bold/italics. Max 1 emoji (optional).
+
+### CRITICAL JSON OUTPUT RULES
+* **Format:** You must return ONLY a raw stringified JSON object.
+* **No Markdown:** Do not use code fences (```json) or markdown tags.
+* **Quote Safety:** Inside the "text" field, you MUST use single quotes (') for any emphasis or dialogue. NEVER use double quotes (") inside the text string, as this breaks the JSON structure.
+
+### REQUIRED OUTPUT SCHEMA
+{
+    "text": "The full body of the LinkedIn post here. Remember to use single quotes for emphasis.",
+    "hashtags": ["#TechTag1", "#TechTag2"],
+    "link": "[Example.com/article](https://Example.com/article) (This must match the input link exactly)"
+}
 """
 
     def __init__(self):
@@ -64,13 +90,14 @@ Do not output Markdown and do not do "code fencing".
     def find_article(
         self,
         message: str,
-        temperature: float = 0.10,
-        tp: float = 0.10,
-        tk: float = 1.0,
+        temperature: float = 0.2,
+        tp: float = 0.1,
+        tk: int = 1,
     ) -> ModelPrep | None:
         _grounding_tools: list[Tool] = [Tool(google_search=GoogleSearch())]
+
         try:
-            _resp: GenerateContentResponse = self.__client.models.generate_content(
+            response: GenerateContentResponse = self.__client.models.generate_content(
                 model="gemini-2.5-flash",
                 contents=message,
                 config=GenerateContentConfig(
@@ -84,48 +111,68 @@ Do not output Markdown and do not do "code fencing".
             )
         except Exception as e:
             print(f"There was a problem loading the Gemini GenAi Client {e}")
-        if not _resp.candidates:
-            print("No candidates found in response...")
-            print("---")
-            return
-        _candidate: Candidate | None = _resp.candidates[0]
-        print("found candidate:")
-        print(_candidate.to_json_dict().keys())
-        print("---")
+            return None
 
-        if not _candidate.grounding_metadata:
-            print("No content available...")
-            print("---")
-            return
-        _g_data: GroundingMetadata = _candidate.grounding_metadata
-        print("Keys of Grounding Metadata:")
-        print(_g_data.to_json_dict().keys())
-        print("---")
+        if not response or not response.text:
+            print("No candidates or text in response")
+            return None
 
-        if not _g_data.grounding_chunks:
-            print("Could not find grounding chunks...")
-            return
-        _chunks: list[GroundingChunk] = _g_data.grounding_chunks
-        print("Keys of grounding_chunks:")
-        print(_g_data.grounding_chunks[0].to_json_dict().keys())
-        print("\n")
+        try:
+            raw_data = response.text.strip()
+            parsed = json.loads(raw_data)
+            structured = ModelPrep(
+                title=parsed["title"],
+                link=parsed["link"],
+                summary=parsed["summary"],
+            )
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"failed to parse response: {e}")
+            return None
 
-        if not _resp.text:
-            return
-        _raw_data: str = _resp.text.strip()
-        _parsed = json.loads(_raw_data)
-        _structured = ModelPrep(
-            title=_parsed["title"], link=_parsed["link"], summary=_parsed["summary"]
-        )
-        print("structured data:")
-        print(_structured)
-        print("---")
-        print("Testing link...")
+        if self._is_link_alive(structured.link):
+            return structured
 
-        if not self.link_test(_structured.link):
-            return
+        print(f"Primary link failed: {structured.link}")
+        print("Attempting fallback to grounding metadata")
 
-        return
+        if not response.candidates:
+            print("No candidates available for fallback")
+            return None
+
+        fallback_link = self._extract_grounding_link(response.candidates[0])
+
+        if fallback_link and self._is_link_alive(fallback_link):
+            print(f"Using fallback link: {fallback_link}")
+            structured.link = fallback_link
+            return structured
+
+        print("No valid link found (primary or fallback)")
+        return None
+
+    def _extract_grounding_link(self, candidate: Candidate) -> str | None:
+        """Extract the first valid UR from grounding metadata"""
+        if not candidate.grounding_metadata:
+            return None
+
+        metadata = candidate.grounding_metadata
+
+        if metadata.grounding_chunks:
+            for chunk in metadata.grounding_chunks:
+                if chunk.web and chunk.web.uri:
+                    return chunk.web.uri
+
+        if metadata.grounding_supports:
+            for support in metadata.grounding_supports:
+                if support.grounding_chunk_indices:
+                    continue
+
+                if hasattr(support, "segment"):
+                    print(f"support found: {support.segment}")
+
+        if hasattr(metadata, "retrieval_metadata") and metadata.retrieval_metadata:
+            print(f"retrieval_metadata found: {metadata.retrieval_metadata}")
+
+        return None
 
     def strip_article(self, article: ModelPrep) -> ModelCook | None:
         _article: ModelPrep = article
@@ -133,19 +180,18 @@ Do not output Markdown and do not do "code fencing".
         try:
             _url = _article.link
             if not _url:
-                print("Need URL to Continue")
-                return
+                return None
             print("Url Found!")
 
             _downloaded = trafilatura.fetch_url(_url)
             if not _downloaded:
                 print(f"Url Invalid: {_url}")
-                return
+                return None
 
             _extracted_text = trafilatura.extract(_downloaded, include_comments=False)
             if not _extracted_text:
                 print("Could not extract text")
-                return
+                return None
 
             _structured_data = ModelCook(
                 title=_article.title,
@@ -153,46 +199,40 @@ Do not output Markdown and do not do "code fencing".
                 summary=_article.summary,
                 text=_extracted_text,
             )
+
             return _structured_data
 
         except Exception as e:
             print(f"Error stripping the article:\t {e}")
             return
 
-    def recover_uri(self, test):
-        pass
+    def _is_link_alive(self, url: str) -> bool:
+        """Checks to see if the provided url is valid"""
+        if not url:
+            return False
 
-    def link_test(self, link: str) -> bool:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
 
-        if len(link) <= 0:
-            print("No proper link was passed...")
-            return False
-
         try:
             response = requests.head(
-                link, timeout=10, allow_redirects=True, headers=headers
+                url, timeout=10, allow_redirects=True, headers=headers
             )
 
             if response.status_code == 200:
-                print("Link test passed...")
                 return True
 
-            # Retrying with get method if it fails
-            print("Link test failed...")
             if response.status_code in (405, 404, 403):
-                print("Trying again with get request")
                 response = requests.get(
-                    link, timeout=10, allow_redirects=True, headers=headers
+                    url, timeout=10, allow_redirects=True, headers=headers
                 )
                 return response.status_code == 200
 
             return False
+
         except requests.RequestException as e:
-            print("There was a problem trying to test the link...")
-            print(e)
+            print(f"Link check failed for {url}: {e}")
             return False
 
     def generate_content(

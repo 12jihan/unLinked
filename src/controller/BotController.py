@@ -3,7 +3,6 @@ import requests
 from controller.MemoryController import MemoryController
 from gemini.gemini_ext import GeminiExt
 from linkedin.linkedin_ext import LinkedInExt
-from models.DataModels import AIResponse, DocumentCreate
 from models.GeminiModels import ModelCook
 
 

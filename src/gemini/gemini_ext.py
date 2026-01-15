@@ -82,56 +82,50 @@ Do not output Markdown and do not do "code fencing".
                     system_instruction=self.instruction_set_1,
                 ),
             )
-            print("\n")
-
-            if _resp.candidates is None:
-                print("No candidates found in response...")
-                print("---")
-                return
-            _candidate: Candidate | None = _resp.candidates[0]
-            print("found candidate:")
-            print(_candidate.to_json_dict().keys())
-            print("---")
-
-            if _candidate.grounding_metadata is None:
-                print("No content available...")
-                print("---")
-                return
-            _g_data: GroundingMetadata = _candidate.grounding_metadata
-            print("Keys of Grounding Metadata:")
-            print(_g_data.to_json_dict().keys())
-            print("---")
-
-            if _g_data.grounding_chunks is None:
-                print("Could not find grounding chunks...")
-                return
-            _chunks: list[GroundingChunk] = _g_data.grounding_chunks
-            print("Keys of grounding_chunks:")
-            print(_g_data.grounding_chunks[0].to_json_dict().keys())
-            print("\n")
-
-            if _resp.text is None:
-                return
-            _raw_data: str = _resp.text.strip()
-            _parsed = json.loads(_raw_data)
-            _structured = ModelPrep(
-                title=_parsed["title"], link=_parsed["link"], summary=_parsed["summary"]
-            )
-            print("structured data:")
-            print(_structured)
-            print("---")
-            print("Testing link...")
-
-            if self.link_test(_structured.link) is False:
-                return
-
-            return
-            # return _structured
-            # return
-
         except Exception as e:
-            print(f"There was an error with Gemini GenAI Client:\n{e}")
-            return None
+            print(f"There was a problem loading the Gemini GenAi Client {e}")
+        if not _resp.candidates:
+            print("No candidates found in response...")
+            print("---")
+            return
+        _candidate: Candidate | None = _resp.candidates[0]
+        print("found candidate:")
+        print(_candidate.to_json_dict().keys())
+        print("---")
+
+        if not _candidate.grounding_metadata:
+            print("No content available...")
+            print("---")
+            return
+        _g_data: GroundingMetadata = _candidate.grounding_metadata
+        print("Keys of Grounding Metadata:")
+        print(_g_data.to_json_dict().keys())
+        print("---")
+
+        if not _g_data.grounding_chunks:
+            print("Could not find grounding chunks...")
+            return
+        _chunks: list[GroundingChunk] = _g_data.grounding_chunks
+        print("Keys of grounding_chunks:")
+        print(_g_data.grounding_chunks[0].to_json_dict().keys())
+        print("\n")
+
+        if not _resp.text:
+            return
+        _raw_data: str = _resp.text.strip()
+        _parsed = json.loads(_raw_data)
+        _structured = ModelPrep(
+            title=_parsed["title"], link=_parsed["link"], summary=_parsed["summary"]
+        )
+        print("structured data:")
+        print(_structured)
+        print("---")
+        print("Testing link...")
+
+        if not self.link_test(_structured.link):
+            return
+
+        return
 
     def strip_article(self, article: ModelPrep) -> ModelCook | None:
         _article: ModelPrep = article

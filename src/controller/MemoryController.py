@@ -24,7 +24,7 @@ class MemoryController:
 
         self.db_url = f"postgresql://{user}:{password}@{host}:{port}/{dbname}"
         self.embeded_dim = 768
-        self.client = Client(api_key=self.api_key)
+        self.client: Client = Client(api_key=self.api_key)
 
         self._init_db()
 
